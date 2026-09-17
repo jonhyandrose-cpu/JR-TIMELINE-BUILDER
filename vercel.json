@@ -1,1 +1,1 @@
-{"rewrites":[{"source":"/timelines/:couple","destination":"/index.html"}]}
+{"rewrites":[{"source":"/timelines/kate-santi","destination":"/?timeline=9406404515c2d37dfe"},{"source":"/timelines/:couple","destination":"/index.html"}]}
