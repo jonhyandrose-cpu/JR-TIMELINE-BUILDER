@@ -1,0 +1,17 @@
+// JR Premium Client Links + automatic wedding status
+(function(){
+  const clean=s=>String(s||'').trim();
+  const slugify=s=>clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  function prettyPath(x){return '/timeline/'+slugify(x?.couple_name||'wedding');}
+  function parseDate(s){s=clean(s).replace(/(\d)(st|nd|rd|th)\b/gi,'$1');let d=new Date(s+' 12:00:00');return isNaN(d)?null:d;}
+  function statusFor(x){const d=parseDate(x?.wedding_date);if(!d)return{label:'LIVE',kind:'live',sub:''};const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),day=new Date(d.getFullYear(),d.getMonth(),d.getDate());if(today>day)return{label:'WEDDING COMPLETED',kind:'done',sub:'Timeline successfully completed · '+(x.wedding_date||'')};if(today.getTime()===day.getTime())return{label:'LIVE · WEDDING DAY',kind:'live',sub:'Today’s live wedding timeline'};return{label:'LIVE TIMELINE',kind:'live',sub:'Wedding timeline · '+(x.wedding_date||'')};}
+  async function resolvePretty(){const m=location.pathname.match(/^\/timeline\/([^/]+)\/?$/i);if(!m)return false;const wanted=m[1];try{const r=await fetch(API+'?select=*',{headers:headers()}),rows=await r.json();const x=(rows||[]).find(v=>slugify(v.couple_name)===wanted);if(x?.public_slug){history.replaceState({},'',prettyPath(x));await publicView(x.public_slug);return true;}}catch(e){console.error(e)}document.getElementById('app').innerHTML='<div class="public"><div class="publicCard"><h2>Timeline not found.</h2></div></div>';return true;}
+  function copyPretty(x){const u=location.origin+prettyPath(x);navigator.clipboard?.writeText(u);prompt('Client link (copied):',u);}
+  function install(){
+    if(typeof window.clientLink==='function'){window.clientLink=function(slug){const x=(window.state&&state.public_slug===slug)?state:(window.all||[]).find(v=>v.public_slug===slug);if(x?.couple_name)return copyPretty(x);const u=location.origin+'/?timeline='+slug;navigator.clipboard?.writeText(u);prompt('Client link (copied):',u);};}
+    if(typeof window.publicView==='function'){const original=window.publicView;window.publicView=async function(slug){await original(slug);try{const r=await fetch(API+'?public_slug=eq.'+encodeURIComponent(slug)+'&select=*',{headers:headers()}),d=await r.json(),x=d[0];if(!x)return;const s=statusFor(x),badge=document.querySelector('.live');if(badge){badge.innerHTML='<span class="dot"></span> '+s.label;if(s.kind==='done'){badge.style.background='#f5f1ea';badge.style.borderColor='#d8cfc2';badge.style.color='#6f6255';const dot=badge.querySelector('.dot');if(dot){dot.style.background='#9a8068';dot.style.boxShadow='0 0 0 4px #eee8df';}}if(s.sub){const h=document.querySelector('.publicHead');if(h&&!document.getElementById('jrStatusSub')){const p=document.createElement('div');p.id='jrStatusSub';p.className='muted';p.style.cssText='font-size:11px;letter-spacing:.06em;margin-top:10px';p.textContent=s.sub;badge.insertAdjacentElement('afterend',p);}}}const foot=document.querySelector('.footer');if(foot&&s.kind==='done')foot.innerHTML=foot.innerHTML.replace(/^LIVE TIMELINE/i,'WEDDING COMPLETED');}catch(e){console.error(e)}};}
+    window.JRPremiumLinks={slugify,prettyPath,statusFor};
+  }
+  install();
+  const m=location.pathname.match(/^\/timeline\//i);if(m)setTimeout(resolvePretty,0);
+})();
