@@ -1,0 +1,16 @@
+{
+  "name": "JR Timeline Builder",
+  "short_name": "JR TB",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/ChatGPT%20Image%2017%20sept%202026%2C%2005_30_08%20p.m..png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
