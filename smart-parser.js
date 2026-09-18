@@ -120,6 +120,20 @@
       T(end,'Photography Service Ends');
       data.timeline.sort((a,b)=>extractTime(a.time)-extractTime(b.time));
     }
+    // Safety net: a successfully parsed questionnaire must never return an empty timeline.
+    if(!data.timeline.length){
+      const T=(time,item)=>data.timeline.push({time:time||'TBD',item});
+      T('TBD','Photography Coverage Begins / Details & Getting Ready');
+      if(yes(firstLook))T('TBD','First Look / Couple Portraits');
+      T('TBD','Wedding Party Photos');
+      T('TBD','Ceremony Prep / Freshen Up');
+      T('TBD','Ceremony'+(ceremonyRaw?' — '+clean(ceremonyRaw):''));
+      T('TBD','Group Photo / Immediate Family Photos');
+      if(!/no cocktail/i.test(cocktailRaw))T('TBD','Cocktail Hour / Guest Candids');
+      T('TBD','Golden Hour Couple Photos (optional)');
+      T('TBD','Reception Begins'+(receptionRaw?' — '+clean(receptionRaw):''));
+      T('TBD','Photography Service Ends');
+    }
     return data;
   }
   window.JRSmartParser={parse};
