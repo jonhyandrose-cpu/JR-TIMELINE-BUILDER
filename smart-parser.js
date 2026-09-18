@@ -116,5 +116,19 @@
       const text=pages.join('\n');document.getElementById('importText').value=text;const d=parse(text);const found=['couple_name','wedding_date','location','coverage','guests','coordinator','videographer','ceremony','cocktail','reception','wedding_party'].filter(k=>d[k]).length;st.textContent=`PDF analyzed · ${found} essential fields · ${d.key_requests.length} key requests · ${d.timeline.length} timeline events. Click Generate timeline draft.`;
     }catch(err){console.error(err);st.textContent='Could not read this PDF automatically. Paste the questionnaire text below.';}
   };
+  // Bind the PDF input directly after every editor render. This avoids the legacy inline reader.
+  function bindSmartPdf(){
+    const input=document.getElementById('pdf');
+    if(!input||input.dataset.jrSmartBound)return;
+    input.dataset.jrSmartBound='1';
+    input.addEventListener('change',function(e){e.stopImmediatePropagation();window.readPdf(e)},true);
+  }
+  document.addEventListener('change',function(e){
+    if(e.target&&e.target.id==='pdf'&&!e.target.dataset.jrSmartHandled){
+      e.target.dataset.jrSmartHandled='1';
+    }
+  },true);
+  const smartObserver=new MutationObserver(()=>bindSmartPdf());
+  document.addEventListener('DOMContentLoaded',()=>{bindSmartPdf();smartObserver.observe(document.body,{childList:true,subtree:true})},{once:true});
   window.generateDraft=function(){const box=document.getElementById('importText'),text=box&&box.value;if(!text||!text.trim()){alert('Upload a PDF first.');return;}if(typeof sync==='function')try{sync()}catch(e){}const d=parse(text);['couple_name','wedding_date','location','coverage','guests','coordinator','videographer','ceremony','cocktail','reception','wedding_party'].forEach(k=>{if(d[k])state[k]=d[k]});state.key_requests=d.key_requests||[];if(d.timeline.length)state.timeline=d.timeline;editor();setTimeout(()=>{const s=document.getElementById('status');if(s)s.textContent='SMART DRAFT GENERATED · Review, adjust if needed, then Save Online.'},0);};
 })();
