@@ -20,7 +20,7 @@
     return '';
   }
   function shortName(full,fallback){const x=clean(full);if(!x)return fallback||'';return x.split(/\s+/)[0];}
-  function extractTime(s){const m=String(s||'').match(timeRe);if(!m)return null;let h=+m[1],min=+(m[2]||0),ap=m[3].replace(/\./g,'').toLowerCase();if(ap==='pm'&&h!==12)h+=12;if(ap==='am'&&h===12)h=0;return h*60+min;}
+  function extractTime(s){const str=String(s||'');let m=str.match(timeRe);if(m){let h=+m[1],min=+(m[2]||0),ap=m[3].replace(/\./g,'').toLowerCase();if(ap==='pm'&&h!==12)h+=12;if(ap==='am'&&h===12)h=0;return h*60+min;}m=str.match(/(?:time[^0-9]{0,35}|aim(?:ing)?[^0-9]{0,20}|around\s*)\b(1[0-2]|[1-9])(?::([0-5]\d))?\b/i)||str.match(/\b(1[0-2]|[1-9]):([0-5]\d)\b/);if(!m)return null;let h=+m[1],min=+(m[2]||0);if(h>=1&&h<=10)h+=12;return h*60+min;}
   function fmt(min){min=((min%1440)+1440)%1440;let h=Math.floor(min/60),m=min%60,ap=h>=12?'PM':'AM';let hh=h%12||12;return hh+':'+String(m).padStart(2,'0')+' '+ap;}
   function coverageHours(s){const m=String(s||'').match(/(\d+(?:\.\d+)?)\s*[- ]?hours?/i);return m?+m[1]:null;}
   function cleanPlaceTime(s){return clean(s).replace(/\s*@\s*/g,' — ').replace(/\s+-\s+(?=\d{1,2}(?::\d{2})?\s*(?:am|pm))/i,' — ');}
@@ -80,6 +80,20 @@
     if(surprises&&!/^no[.! ]*$/i.test(surprises)&&!/father|mother|dance/i.test(surprises))pushUnique(data.key_requests,surprises);
 
     const cer=extractTime(ceremonyRaw), cock=extractTime(cocktailRaw), rec=extractTime(receptionRaw), hrs=coverageHours(coverage)||8;
+    if(cer===null){
+      const anchor=rec!==null?rec-120:(cock!==null?cock-60:null);
+      const start=anchor!==null?anchor-(hrs>=8?210:hrs>=6?150:120):null;
+      const T=(m,item)=>data.timeline.push({time:m===null?'TBD':fmt(m),item});
+      T(start,'Details Shots / Bride Getting Ready Coverage Begins');
+      T(start===null?null:start+30,'Groom Getting Ready / Groomsmen Photos');
+      if(yes(firstLook)){T(anchor===null?null:anchor-90,'First Look / Couple Portraits');T(anchor===null?null:anchor-50,'Wedding Party Photos');}
+      T(anchor===null?null:anchor-25,'Ceremony Prep / Freshen Up');
+      T(anchor,'Ceremony'+(ceremonyRaw?' ('+clean(ceremonyRaw)+')':' — TIME TBD'));
+      T(anchor===null?null:anchor+30,'Group Photo / Immediate Family Photos');
+      if(cock!==null)T(cock,'Cocktail Hour / Guest Candids');
+      if(rec!==null){T(rec-30,'Golden Hour Couple Photos (optional)');T(rec,'Reception Begins');}
+      T(start===null?null:start+hrs*60,'Photography Service Ends');
+    }
     if(cer!==null){
       const pre=hrs>=8?210:hrs>=6?150:120, start=cer-pre, end=start+hrs*60;
       const T=(m,item)=>data.timeline.push({time:fmt(m),item});
