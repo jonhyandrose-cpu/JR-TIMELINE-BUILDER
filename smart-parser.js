@@ -109,7 +109,7 @@
     return data;
   }
   window.JRSmartParser={parse};
-  window.readPdf=async function(e){
+  window.JRSmartParserReadPdf=window.readPdf=async function(e){
     const f=e.target.files[0];if(!f)return;const st=document.getElementById('importStatus');st.textContent='Reading '+f.name+'…';
     try{if(!window.pdfjsLib)throw Error('PDF reader unavailable');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const doc=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,pages=[];
       for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),tc=await pg.getTextContent(),rows={};tc.items.forEach(it=>{const y=Math.round(it.transform[5]/3)*3;(rows[y]??=[]).push(it)});pages.push(Object.keys(rows).map(Number).sort((a,b)=>b-a).map(y=>rows[y].sort((a,b)=>a.transform[4]-b.transform[4]).map(i=>i.str).join(' ')).join('\n'));}
