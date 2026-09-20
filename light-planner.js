@@ -28,5 +28,28 @@
   function renderError(card,msg){card.innerHTML='<div style="grid-column:1/-1"><div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a8068;font-weight:700">Wedding Light Planner</div><div style="margin-top:7px"><strong>Light info unavailable.</strong> '+esc(msg)+'</div><button id="jrLightRetry" type="button" style="margin-top:10px">Retry location</button></div>';document.getElementById('jrLightRetry')?.addEventListener('click',refresh);}
   async function refresh(){const card=ensureCard();if(!card)return;const locInput=document.getElementById('f_location'),dateInput=document.getElementById('f_wedding_date');const location=clean(locInput?.value||window.state?.location),dateText=clean(dateInput?.value||window.state?.wedding_date);if(!location||!dateText){renderError(card,'Add the wedding location and wedding date first.');return;}const d=parseWeddingDate(dateText);if(!d){renderError(card,'I could not understand the wedding date.');return;}renderLoading(card);try{const g=await geocode(location),zone=await timezone(g.lat,g.lng,g.name,g.zone),s=await sun(g.lat,g.lng,isoDate(d));const sunset=fmt(s.sunset,zone),golden=fmt(minus60(s.sunset),zone);card.innerHTML=`<div style="min-width:0"><div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a8068;font-weight:700">Wedding Light Planner</div><div style="font-family:Georgia,serif;font-size:19px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(g.name)}">${esc(location)}</div><div style="font-size:12px;color:#756f68;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(g.name)}">📍 ${esc(g.name)}</div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#756f68">Sunset</div><div style="font-family:Georgia,serif;font-size:25px;margin-top:4px">${esc(sunset)}</div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#756f68">Golden hour starts</div><div style="font-family:Georgia,serif;font-size:25px;margin-top:4px">${esc(golden)}</div><div style="font-size:11px;color:#756f68">1 hr before sunset</div></div><div style="grid-column:1/-1;font-size:11px;color:#756f68;border-top:1px solid #ded8cf;padding-top:9px">Calculated for ${esc(isoDate(d))} · ${esc(zone)} · ${g.lat.toFixed(4)}, ${g.lng.toFixed(4)} · ${esc(g.source||'location lookup')}. Planning reference: mountains, buildings and weather can reduce usable direct light.</div>`;}catch(e){console.error('JR Light Planner',e);renderError(card,'Could not locate this venue automatically. Make the Location field more specific (hotel/resort + city/country) and retry.');}}
   function install(){if(typeof window.editor!=='function'||window.__jrLightInstalled)return;window.__jrLightInstalled=true;const original=window.editor;window.editor=function(){const out=original.apply(this,arguments);setTimeout(()=>{ensureCard();refresh();const l=document.getElementById('f_location'),d=document.getElementById('f_wedding_date');[l,d].forEach(x=>x&&x.addEventListener('change',refresh));},0);return out;};if(document.querySelector('.editorBody'))setTimeout(refresh,0);}
-  window.JRLightPlanner={refresh};install();
+  async function calculate(location,dateText){
+    location=clean(location);dateText=clean(dateText);
+    if(!location||!dateText)return null;
+    const d=parseWeddingDate(dateText);if(!d)return null;
+    const g=await geocode(location),zone=await timezone(g.lat,g.lng,g.name,g.zone),s=await sun(g.lat,g.lng,isoDate(d));
+    return {sunset:fmt(s.sunset,zone),golden:fmt(minus60(s.sunset),zone),zone,date:isoDate(d),resolved:g.name,source:g.source||'location lookup'};
+  }
+  function publicCard(info){
+    return '<section class="publicSection jrPublicLight"><h2>Wedding Light</h2><div class="infoGrid"><div class="infoItem"><small>SUNSET</small><div>'+esc(info.sunset)+'</div></div><div class="infoItem"><small>GOLDEN HOUR STARTS</small><div>'+esc(info.golden)+'</div></div></div><div class="muted" style="margin-top:10px;font-size:11px">Planning reference · '+esc(info.date)+' · '+esc(info.zone)+'</div></section>';
+  }
+  async function renderPublic(){
+    const root=document.querySelector('.publicCard');if(!root||root.querySelector('.jrPublicLight'))return;
+    const slug=new URLSearchParams(location.search).get('timeline');if(!slug||typeof API==='undefined'||typeof headers!=='function')return;
+    try{
+      const r=await fetch(API+'?public_slug=eq.'+encodeURIComponent(slug)+'&select=location,wedding_date',{headers:headers()});
+      if(!r.ok)return;const rows=await r.json(),x=rows[0];if(!x)return;
+      const info=await calculate(x.location,x.wedding_date);if(!info)return;
+      const essential=[...root.querySelectorAll('.publicSection')].find(s=>/Essential Information/i.test(s.querySelector('h2')?.textContent||''));
+      if(essential)essential.insertAdjacentHTML('afterend',publicCard(info));
+    }catch(e){console.error('JR public light',e)}
+  }
+  const publicObserver=new MutationObserver(()=>{if(document.querySelector('.publicCard'))renderPublic();});
+  function installPublic(){const app=document.getElementById('app');if(app)publicObserver.observe(app,{childList:true,subtree:true});renderPublic();}
+  window.JRLightPlanner={refresh,calculate,renderPublic};install();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installPublic,{once:true});else installPublic();
 })();
