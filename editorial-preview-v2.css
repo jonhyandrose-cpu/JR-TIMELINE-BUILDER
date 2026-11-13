@@ -25,3 +25,19 @@
 .publicHead:after{content:'';position:absolute;top:26px;left:26px;width:41px;height:41px;background:url('/jr-editorial-monogram.svg') center/contain no-repeat;opacity:.85;pointer-events:none}
 .top .mark{width:46px;height:46px;border:0;border-radius:0;background:url('/jr-editorial-monogram.svg') center/contain no-repeat;font-size:0;color:transparent}
 @media(max-width:760px){.publicHead:after{top:23px;left:4px;width:31px;height:31px}.publicSection .infoItem div,.publicSection .infoItem div *{font-size:13px!important}}
+
+/* Essential Information: clean sans-serif like the planning-reference note. */
+.publicSection:has(.infoGrid){padding-top:54px;padding-bottom:66px;margin-bottom:18px;border-bottom:1px solid #cfc4b6}
+.publicSection:has(.infoGrid)>h2{font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#82705d;margin-bottom:30px}
+.publicSection:has(.infoGrid) .infoGrid{row-gap:26px;column-gap:42px}
+.publicSection:has(.infoGrid) .infoItem{padding-top:15px;border-top:1px solid #e5ded5}
+.publicSection:has(.infoGrid) .infoItem div,
+.publicSection:has(.infoGrid) .infoItem div *{font-family:'DM Sans',Arial,sans-serif!important;font-size:13px!important;line-height:1.65!important;font-weight:400!important;letter-spacing:0!important;color:#3d3934!important}
+.publicSection:has(.infoGrid) .infoItem small{display:block;margin-bottom:8px;font-family:'DM Sans',Arial,sans-serif;font-size:10px;letter-spacing:.14em;color:#907c66}
+.publicSection:has(> .publicRow){padding-top:63px}
+@media(max-width:760px){
+.publicSection:has(.infoGrid){padding-top:42px;padding-bottom:48px;margin-bottom:8px}
+.publicSection:has(.infoGrid) .infoGrid{row-gap:17px}
+.publicSection:has(.infoGrid) .infoItem div,.publicSection:has(.infoGrid) .infoItem div *{font-size:12px!important}
+.publicSection:has(> .publicRow){padding-top:45px}
+}
