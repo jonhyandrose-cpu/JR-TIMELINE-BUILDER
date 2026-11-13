@@ -41,3 +41,14 @@
 .publicSection:has(.infoGrid) .infoItem div,.publicSection:has(.infoGrid) .infoItem div *{font-size:12px!important}
 .publicSection:has(> .publicRow){padding-top:45px}
 }
+
+/* Dashboard/editor enhancements: preview modal and event comments. */
+#rows .timelineRow{grid-template-columns:110px minmax(0,1fr) auto;align-items:start}
+#rows .timelineRow>textarea:not(.jrEventNotes){grid-column:2;grid-row:1}
+#rows .timelineRow>.jrEventNotes{grid-column:2;grid-row:2;width:100%;min-height:66px;padding:11px 12px;border:1px solid #e0d7cd;border-radius:9px;font:12px/1.5 'DM Sans',Arial,sans-serif;background:#fcfaf7;resize:vertical}
+#rows .timelineRow>.move{grid-column:3;grid-row:1 / span 2}
+.jrDraftOverlay{position:fixed;inset:0;z-index:9999;background:#f1ede6;overflow:auto}
+.jrDraftBar{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 24px;background:#2d2b27;color:#fff;font:600 11px 'DM Sans',Arial,sans-serif;letter-spacing:.1em}
+.jrDraftClose{border:1px solid #b9ae9c;border-radius:5px;padding:9px 15px;color:#fff;background:transparent;cursor:pointer}
+.jrDraftOverlay .public{padding-top:28px}
+@media(max-width:760px){#rows .timelineRow{grid-template-columns:76px minmax(0,1fr)}#rows .timelineRow>.move{grid-column:1/-1;grid-row:3}.jrDraftBar{padding:10px 13px;font-size:9px}}
