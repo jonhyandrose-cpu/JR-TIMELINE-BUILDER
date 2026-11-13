@@ -1,0 +1,63 @@
+/* JR Editorial public presentation — public view only. No editor, routing or data changes. */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap');
+body:has(.public){background:#f0ede7}
+.public{max-width:1060px;margin:0 auto;padding:42px 26px 84px;color:#24231f;font-family:'DM Sans',Arial,sans-serif}
+.publicCard{background:#fbfaf7;border:1px solid #e2ddd3;border-radius:0;box-shadow:0 24px 75px rgba(38,32,25,.055);padding:0 76px 58px}
+.publicHead{position:relative;min-height:460px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:78px 30px 66px;border-bottom:1px solid #c8c0b3;text-align:center}
+.publicHead:before{content:'THE WEDDING DAY';font-size:10px;letter-spacing:.32em;font-weight:600;color:#8e7d6d;margin-bottom:35px}
+.publicHead .eyebrow{order:4;margin-top:36px!important;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600;letter-spacing:.26em;color:#897e72}
+.publicHead h1{order:2;font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(64px,9vw,112px);font-weight:400;font-style:italic;line-height:.86;letter-spacing:-.055em;max-width:750px;margin:0 0 34px}
+.publicHead .meta{order:3;font-size:11px;line-height:2.1;letter-spacing:.19em;text-transform:uppercase;color:#72685e}
+.publicHead .live{position:absolute;top:22px;right:0;order:0;background:transparent;border:1px solid #d5d0c7;color:#80796d;border-radius:0;padding:6px 10px;font-size:9px;letter-spacing:.18em}
+.publicHead .dot{width:5px;height:5px;background:#5e8a6a;box-shadow:none}
+.publicSection{padding:55px 0 48px;border-bottom:1px solid #c8c0b3}
+.publicSection h2{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.29em;font-weight:600;color:#75695c;text-transform:uppercase;margin:0 0 32px}
+.publicSection .infoGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:27px 46px}
+.publicSection .infoItem{border-top:1px solid #e8e3db;padding-top:12px;min-width:0}
+.publicSection .infoItem small{font-family:'DM Sans',sans-serif;color:#9c8d7b;font-size:9px;font-weight:600;letter-spacing:.17em;margin-bottom:9px}
+.publicSection .infoItem div{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;line-height:1.2;font-weight:500;overflow-wrap:anywhere}
+.publicRow{display:grid;grid-template-columns:112px minmax(0,1fr);gap:32px;padding:24px 0;border-bottom:1px solid #e3ddd4;align-items:start}
+.publicTime{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;white-space:nowrap;padding-top:7px;color:#817160}
+.publicItem{font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;line-height:1.23;font-weight:500;white-space:pre-line;overflow-wrap:anywhere}
+.publicItem::first-line{font-weight:600}
+.public .jrPublicLight{background:transparent!important;border:0!important;border-bottom:1px solid #c8c0b3!important;border-radius:0!important;padding:42px 0!important;margin:0!important}
+.public .jrPublicLight .infoItem div{font-family:'Cormorant Garamond',Georgia,serif;font-size:34px!important}
+.public .jrPublicLight .infoItem small{font-size:10px;letter-spacing:.15em}
+.public .footer{font-size:9px;line-height:2;letter-spacing:.18em;padding-top:48px;color:#8c8073}
+@media(max-width:760px){
+.public{padding:0 0 44px;margin:0}
+.publicCard{padding:0 24px 40px;border:0;box-shadow:none}
+.publicHead{min-height:430px;padding:78px 5px 55px}
+.publicHead h1{font-size:clamp(57px,15vw,85px);line-height:.91}
+.publicHead .meta{font-size:10px;letter-spacing:.12em}
+.publicHead .live{top:20px;right:0}
+.publicSection{padding:42px 0 37px}
+.publicSection .infoGrid{grid-template-columns:1fr;gap:18px}
+.publicRow{grid-template-columns:82px minmax(0,1fr);gap:15px;padding:19px 0}
+.publicTime{font-size:10px;padding-top:6px}
+.publicItem{font-size:24px}
+}
+@media print{body:has(.public){background:#fff}.public{padding:0;max-width:none}.publicCard{border:0;box-shadow:none}.publicHead{min-height:340px}.publicRow,.infoItem{break-inside:avoid}.publicSection{break-inside:auto}}
+
+/* Two-column editorial itinerary: visual grid only, DOM order and saved events unchanged. */
+.publicSection:has(> .publicRow){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:52px;row-gap:0}
+.publicSection:has(> .publicRow)>h2{grid-column:1/-1}
+.publicSection:has(> .publicRow)>.publicRow{display:block;padding:20px 0 24px;border-bottom:1px solid #d8cbb9;min-width:0}
+.publicSection:has(> .publicRow) .publicTime{display:block;padding:0 0 9px;font-size:11px;color:#a47d53;letter-spacing:.16em}
+.publicSection:has(> .publicRow) .publicItem{display:block;font-size:clamp(24px,2.5vw,32px);line-height:1.18}
+.publicSection:has(> .publicRow)>.publicRow:nth-child(2),.publicSection:has(> .publicRow)>.publicRow:nth-child(3){border-top:1px solid #d8cbb9}
+.public{color:#29271f}
+.publicCard{background:#fcfaf5;border-color:#d7c9b5}
+.publicHead{border-color:#c7b49b}
+.publicHead:before{color:#9c754b}
+.publicHead .meta{color:#756957}
+.publicSection h2{color:#8b6948}
+.publicSection .infoItem small{color:#a07f58}
+.public .jrPublicLight{border-color:#c7b49b!important}
+.public .footer{color:#8e775c}
+@media(max-width:760px){
+.publicSection:has(> .publicRow){grid-template-columns:1fr}
+.publicSection:has(> .publicRow)>.publicRow{padding:19px 0 22px}
+.publicSection:has(> .publicRow)>.publicRow:nth-child(3){border-top:0}
+.publicSection:has(> .publicRow) .publicItem{font-size:26px}
+}
