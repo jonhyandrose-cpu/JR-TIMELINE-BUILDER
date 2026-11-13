@@ -58,7 +58,7 @@
 .publicSection:has(> .publicRow) .publicItem .jrEventDetails>span,
 .jrDraftOverlay .publicItem .jrEventDetails,
 .jrDraftOverlay .publicItem .jrEventDetails>span{
- color:#81796f!important;
+ color:#6F685F!important;
  font-weight:400!important;
 }
 .publicSection:has(> .publicRow) .publicItem .jrEventTitle,
