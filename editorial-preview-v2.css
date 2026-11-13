@@ -1,0 +1,65 @@
+/* Scoped editorial schedule, preview only. Other application views unchanged. */
+.publicSection:has(> .publicRow){display:block;padding:46px 0 54px;border-bottom:1px solid #d7d0c6}
+.publicSection:has(> .publicRow)>h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;letter-spacing:.07em;font-weight:400;text-align:center;color:#34302b;margin:0 0 42px;text-transform:uppercase}
+.publicSection:has(> .publicRow)>.publicRow,
+.publicSection:has(> .publicRow)>.publicRow:first-of-type{display:grid;grid-template-columns:105px minmax(0,1fr);gap:18px;padding:0;margin:0 0 25px;border:0;align-items:start}
+.publicSection:has(> .publicRow) .publicTime{font-family:Georgia,serif;font-size:15px;font-weight:700;letter-spacing:0;color:#25221e;line-height:1.45;padding:0;white-space:nowrap}
+.publicSection:has(> .publicRow) .publicItem{font-family:Georgia,serif;font-size:15px;line-height:1.45;font-weight:400;letter-spacing:0;white-space:normal;color:#292520}
+.publicItem .jrEventTitle{display:block;font-family:Georgia,serif;font-size:15px;font-weight:700;line-height:1.45}
+.publicItem .jrEventDetails{display:block}
+.publicItem .jrEventDetails>span{display:block;font-size:15px;line-height:1.45}
+#rows [data-jr-prep]{font-size:11px;white-space:nowrap;background:#f7f1e8;border:1px solid #e1d4c4;color:#6e5840}
+@media(max-width:760px){
+.publicSection:has(> .publicRow)>h2{font-size:26px;margin-bottom:34px}
+.publicSection:has(> .publicRow)>.publicRow,
+.publicSection:has(> .publicRow)>.publicRow:first-of-type{grid-template-columns:74px minmax(0,1fr);gap:10px;margin-bottom:20px}
+.publicSection:has(> .publicRow) .publicTime,.publicSection:has(> .publicRow) .publicItem,.publicItem .jrEventTitle,.publicItem .jrEventDetails>span{font-size:12px}
+}
+
+/* Consistent document typography and restrained monogram placement. */
+.publicSection .infoItem div,
+.publicSection .infoItem div *{font-family:Georgia,'Times New Roman',serif!important;font-size:15px!important;font-weight:400!important;line-height:1.5!important;letter-spacing:0!important;color:#292520!important}
+.publicSection .infoItem small{font-family:'DM Sans',Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:.13em;color:#897965}
+.publicSection .infoGrid{row-gap:20px}
+.publicHead{position:relative}
+.publicHead:after{content:'';position:absolute;top:26px;left:26px;width:41px;height:41px;background:url('/jr-editorial-monogram.svg') center/contain no-repeat;opacity:.85;pointer-events:none}
+.top .mark{width:46px;height:46px;border:0;border-radius:0;background:url('/jr-editorial-monogram.svg') center/contain no-repeat;font-size:0;color:transparent}
+@media(max-width:760px){.publicHead:after{top:23px;left:4px;width:31px;height:31px}.publicSection .infoItem div,.publicSection .infoItem div *{font-size:13px!important}}
+
+/* Essential Information: clean sans-serif like the planning-reference note. */
+.publicSection:has(.infoGrid){padding-top:54px;padding-bottom:66px;margin-bottom:18px;border-bottom:1px solid #cfc4b6}
+.publicSection:has(.infoGrid)>h2{font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#82705d;margin-bottom:30px}
+.publicSection:has(.infoGrid) .infoGrid{row-gap:26px;column-gap:42px}
+.publicSection:has(.infoGrid) .infoItem{padding-top:15px;border-top:1px solid #e5ded5}
+.publicSection:has(.infoGrid) .infoItem div,
+.publicSection:has(.infoGrid) .infoItem div *{font-family:'DM Sans',Arial,sans-serif!important;font-size:13px!important;line-height:1.65!important;font-weight:400!important;letter-spacing:0!important;color:#3d3934!important}
+.publicSection:has(.infoGrid) .infoItem small{display:block;margin-bottom:8px;font-family:'DM Sans',Arial,sans-serif;font-size:10px;letter-spacing:.14em;color:#907c66}
+.publicSection:has(> .publicRow){padding-top:63px}
+@media(max-width:760px){
+.publicSection:has(.infoGrid){padding-top:42px;padding-bottom:48px;margin-bottom:8px}
+.publicSection:has(.infoGrid) .infoGrid{row-gap:17px}
+.publicSection:has(.infoGrid) .infoItem div,.publicSection:has(.infoGrid) .infoItem div *{font-size:12px!important}
+.publicSection:has(> .publicRow){padding-top:45px}
+}
+
+/* Dashboard/editor enhancements: preview modal and event comments. */
+#rows .timelineRow{grid-template-columns:110px minmax(0,1fr) auto;align-items:start}
+#rows .timelineRow>textarea:not(.jrEventNotes){grid-column:2;grid-row:1}
+#rows .timelineRow>.jrEventNotes{grid-column:2;grid-row:2;width:100%;min-height:66px;padding:11px 12px;border:1px solid #e0d7cd;border-radius:9px;font:12px/1.5 'DM Sans',Arial,sans-serif;background:#fcfaf7;resize:vertical}
+#rows .timelineRow>.move{grid-column:3;grid-row:1 / span 2}
+.jrDraftOverlay{position:fixed;inset:0;z-index:9999;background:#f1ede6;overflow:auto}
+.jrDraftBar{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 24px;background:#2d2b27;color:#fff;font:600 11px 'DM Sans',Arial,sans-serif;letter-spacing:.1em}
+.jrDraftClose{border:1px solid #b9ae9c;border-radius:5px;padding:9px 15px;color:#fff;background:transparent;cursor:pointer}
+.jrDraftOverlay .public{padding-top:28px}
+@media(max-width:760px){#rows .timelineRow{grid-template-columns:76px minmax(0,1fr)}#rows .timelineRow>.move{grid-column:1/-1;grid-row:3}.jrDraftBar{padding:10px 13px;font-size:9px}}
+
+/* Editorial hierarchy: secondary notes and getting-ready inclusions in warm gray. */
+.publicSection:has(> .publicRow) .publicItem .jrEventDetails,
+.publicSection:has(> .publicRow) .publicItem .jrEventDetails>span,
+.jrDraftOverlay .publicItem .jrEventDetails,
+.jrDraftOverlay .publicItem .jrEventDetails>span{
+ color:#6F685F!important;
+ font-weight:400!important;
+}
+.publicSection:has(> .publicRow) .publicItem .jrEventTitle,
+.jrDraftOverlay .publicItem .jrEventTitle{color:#24221f!important;font-weight:700!important}
