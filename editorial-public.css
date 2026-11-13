@@ -61,3 +61,17 @@ body:has(.public){background:#f0ede7}
 .publicSection:has(> .publicRow) .publicTime{font-size:10px}
 .publicSection:has(> .publicRow) .publicItem{font-size:21px;line-height:1.32}
 }
+
+/* Reference-inspired, single-column wedding coverage: time | bold title | simple detail lines. */
+.publicSection:has(> .publicRow)>.publicRow{grid-template-columns:108px minmax(0,1fr);gap:17px;align-items:start;padding:18px 0 19px}
+.publicSection:has(> .publicRow) .publicTime{font-family:Georgia,'Times New Roman',serif;font-size:15px;font-weight:700;letter-spacing:0;color:#24231f;padding-top:1px}
+.publicSection:has(> .publicRow) .publicItem{font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.5;font-weight:400;letter-spacing:0;color:#292824;white-space:normal}
+.publicItem .jrEventTitle{display:block;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.45;font-weight:700}
+.publicItem .jrEventDetails{display:block;margin-top:1px}
+.publicItem .jrEventDetails span{display:block;line-height:1.5}
+.timelineRow textarea{width:100%;min-height:43px;resize:vertical;border:1px solid var(--line);border-radius:9px;padding:11px 12px;font:inherit;background:#fff}
+@media(max-width:760px){
+.publicSection:has(> .publicRow)>.publicRow{grid-template-columns:76px minmax(0,1fr);gap:10px;padding:16px 0}
+.publicSection:has(> .publicRow) .publicTime{font-size:12px}
+.publicSection:has(> .publicRow) .publicItem,.publicItem .jrEventTitle{font-size:13px;line-height:1.5}
+}
