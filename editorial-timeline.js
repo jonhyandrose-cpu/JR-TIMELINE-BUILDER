@@ -9,6 +9,14 @@
     return '<strong class="jrEventTitle">'+safe(lines[0])+'</strong>'+
       (lines.length>1?'<span class="jrEventDetails">'+lines.slice(1).map(s=>'<span>'+safe(s)+'</span>').join('')+'</span>':'');
   };
+  window.JRForceGettingReady=function(index,currentState,type){
+    const row=currentState?.timeline?.[index];if(!row||!['bride','groom'].includes(type))return false;
+    const title=String(row.item||'').split(/\r?\n/)[0].trim();
+    if(!/^getting\s*ready/i.test(title))return false;
+    if(String(row.item||'').includes('\n'))return false;
+    row.item=title+'\n'+(type==='bride'?bride:groom).join('\n');
+    return true;
+  };
   window.JRExpandGettingReady=function(index,currentState){
     const row=currentState?.timeline?.[index];if(!row)return false;
     const value=String(row.item||'').trim();
