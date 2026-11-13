@@ -21,12 +21,12 @@ function expand(input,type){
 }
 document.addEventListener('change',function(e){
  const input=e.target;
- if(!input.matches?.('#rows .timelineRow input:nth-child(2)'))return;
+ if(!input.matches?.('#rows .timelineRow textarea'))return;
  const type=inferType(input);if(type)expand(input,type);
 });
 document.addEventListener('click',function(e){
  const btn=e.target.closest?.('[data-jr-prep]');if(!btn)return;
- const input=btn.closest('.timelineRow')?.querySelector('input:nth-child(2)');
+ const input=btn.closest('.timelineRow')?.querySelector('textarea');
  if(input)expand(input,btn.dataset.jrPrep);
 });
 function decorate(){
