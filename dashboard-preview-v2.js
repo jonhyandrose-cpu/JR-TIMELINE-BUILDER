@@ -15,16 +15,24 @@ function editorNotes(){
   notes.setAttribute('aria-label','Optional photo activity notes');
   notes.value=lines.join('\n');
   activity.insertAdjacentElement('afterend',notes);
-  const update=()=>{
-    if(!window.state?.timeline?.[i])return;
-    window.state.timeline[i].item=activity.value.trim()+(notes.value.trim()?'\n'+notes.value.trim():'');
-  };
-  // state is lexical in the original app; update through the existing inline onchange
-  const updateNative=()=>{const text=activity.value.trim()+(notes.value.trim()?'\n'+notes.value.trim():'');activity.value=text;activity.dispatchEvent(new Event('change'));activity.value=text.split(/\r?\n/)[0];};
-  notes.addEventListener('change',updateNative);
-  activity.addEventListener('change',()=>{if(notes.value.trim()){const combined=activity.value.trim()+'\n'+notes.value.trim();activity.value=combined;activity.dispatchEvent(new Event('input'));activity.value=combined.split(/\r?\n/)[0];}});
+  notes.addEventListener('change',()=>{
+    const title=activity.value.split(/\r?\n/)[0];
+    activity.value=title+(notes.value.trim()?'\n'+notes.value.trim():'');
+    activity.dispatchEvent(new Event('change'));
+    activity.value=title;
+  });
+
  });
 }
+document.addEventListener('change',e=>{
+ const activity=e.target;
+ if(!activity.matches?.('#rows .timelineRow > textarea'))return;
+ const notes=activity.parentElement?.querySelector('.jrEventNotes');
+ if(!notes||activity.value.includes('\n'))return;
+ const title=activity.value;
+ activity.value=title+(notes.value.trim()?'\n'+notes.value.trim():'');
+ queueMicrotask(()=>{if(activity.isConnected)activity.value=title});
+},true);
 window.JRPreviewDraft=function(){
  const fields=['couple_name','wedding_date','location','coverage','guests','coordinator','videographer','ceremony','cocktail','reception','wedding_party'];
  const labels={coverage:'Photography Coverage',guests:'Estimated Guests',coordinator:'Coordinator',videographer:'Videographer',ceremony:'Ceremony',cocktail:'Cocktail Hour',reception:'Reception',wedding_party:'Wedding Party'};
