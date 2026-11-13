@@ -52,3 +52,14 @@
 .jrDraftClose{border:1px solid #b9ae9c;border-radius:5px;padding:9px 15px;color:#fff;background:transparent;cursor:pointer}
 .jrDraftOverlay .public{padding-top:28px}
 @media(max-width:760px){#rows .timelineRow{grid-template-columns:76px minmax(0,1fr)}#rows .timelineRow>.move{grid-column:1/-1;grid-row:3}.jrDraftBar{padding:10px 13px;font-size:9px}}
+
+/* Editorial hierarchy: secondary notes and getting-ready inclusions in warm gray. */
+.publicSection:has(> .publicRow) .publicItem .jrEventDetails,
+.publicSection:has(> .publicRow) .publicItem .jrEventDetails>span,
+.jrDraftOverlay .publicItem .jrEventDetails,
+.jrDraftOverlay .publicItem .jrEventDetails>span{
+ color:#81796f!important;
+ font-weight:400!important;
+}
+.publicSection:has(> .publicRow) .publicItem .jrEventTitle,
+.jrDraftOverlay .publicItem .jrEventTitle{color:#24221f!important;font-weight:700!important}
