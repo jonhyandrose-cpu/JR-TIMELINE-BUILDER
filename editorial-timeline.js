@@ -13,7 +13,7 @@
     const value=String(input.value||'').trim();
     if(!/^getting\s*ready\s*[-–—:]\s*.+/i.test(value)||value.includes('\n'))return;
     const label=value.replace(/^getting\s*ready\s*[-–—:]\s*/i,'').trim();
-    const couple=String(currentState?.couple_name||'').split(/\s+(?:&|and|y|\+)\s+/i).map(x=>x.trim());
+    const couple=String(document.getElementById('f_couple_name')?.value||currentState?.couple_name||'').split(/\s+(?:&|and|y|\+)\s+/i).map(x=>x.trim());
     const first=couple[0]?.split(/\s+/)[0]?.toLowerCase();
     const second=couple[1]?.split(/\s+/)[0]?.toLowerCase();
     const name=label.toLowerCase();
