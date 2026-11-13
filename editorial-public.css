@@ -39,25 +39,25 @@ body:has(.public){background:#f0ede7}
 }
 @media print{body:has(.public){background:#fff}.public{padding:0;max-width:none}.publicCard{border:0;box-shadow:none}.publicHead{min-height:340px}.publicRow,.infoItem{break-inside:avoid}.publicSection{break-inside:auto}}
 
-/* Two-column editorial itinerary: visual grid only, DOM order and saved events unchanged. */
-.publicSection:has(> .publicRow){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:52px;row-gap:0}
-.publicSection:has(> .publicRow)>h2{grid-column:1/-1}
-.publicSection:has(> .publicRow)>.publicRow{display:block;padding:20px 0 24px;border-bottom:1px solid #d8cbb9;min-width:0}
-.publicSection:has(> .publicRow) .publicTime{display:block;padding:0 0 9px;font-size:11px;color:#a47d53;letter-spacing:.16em}
-.publicSection:has(> .publicRow) .publicItem{display:block;font-size:clamp(24px,2.5vw,32px);line-height:1.18}
-.publicSection:has(> .publicRow)>.publicRow:nth-child(2),.publicSection:has(> .publicRow)>.publicRow:nth-child(3){border-top:1px solid #d8cbb9}
+/* Refined one-column itinerary — restrained print-editorial hierarchy. */
+.publicSection:has(> .publicRow){display:block}
+.publicSection:has(> .publicRow)>h2{margin-bottom:23px}
+.publicSection:has(> .publicRow)>.publicRow{display:grid;grid-template-columns:105px minmax(0,1fr);gap:22px;align-items:baseline;padding:16px 0 17px;border-bottom:1px solid #e6e0d7}
+.publicSection:has(> .publicRow)>.publicRow:first-of-type{border-top:1px solid #e6e0d7}
+.publicSection:has(> .publicRow) .publicTime{display:block;padding:0;color:#88745f;font-family:'DM Sans',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.035em;white-space:nowrap}
+.publicSection:has(> .publicRow) .publicItem{display:block;color:#2b2925;font-family:'Cormorant Garamond',Georgia,serif;font-size:23px;font-weight:500;line-height:1.34;letter-spacing:0;white-space:pre-line;overflow-wrap:anywhere}
+.publicSection:has(> .publicRow) .publicItem::first-line{font-weight:500}
 .public{color:#29271f}
-.publicCard{background:#fcfaf5;border-color:#d7c9b5}
-.publicHead{border-color:#c7b49b}
-.publicHead:before{color:#9c754b}
+.publicCard{background:#fcfaf7;border-color:#d9d0c3}
+.publicHead{border-color:#d2c8bb}
+.publicHead:before{color:#947e66}
 .publicHead .meta{color:#756957}
-.publicSection h2{color:#8b6948}
-.publicSection .infoItem small{color:#a07f58}
-.public .jrPublicLight{border-color:#c7b49b!important}
-.public .footer{color:#8e775c}
+.publicSection h2{color:#81715e}
+.publicSection .infoItem small{color:#94816c}
+.public .jrPublicLight{border-color:#d2c8bb!important}
+.public .footer{color:#8e806e}
 @media(max-width:760px){
-.publicSection:has(> .publicRow){grid-template-columns:1fr}
-.publicSection:has(> .publicRow)>.publicRow{padding:19px 0 22px}
-.publicSection:has(> .publicRow)>.publicRow:nth-child(3){border-top:0}
-.publicSection:has(> .publicRow) .publicItem{font-size:26px}
+.publicSection:has(> .publicRow)>.publicRow{grid-template-columns:78px minmax(0,1fr);gap:13px;padding:15px 0 16px}
+.publicSection:has(> .publicRow) .publicTime{font-size:10px}
+.publicSection:has(> .publicRow) .publicItem{font-size:21px;line-height:1.32}
 }
