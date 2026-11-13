@@ -15,3 +15,13 @@
 .publicSection:has(> .publicRow)>.publicRow:first-of-type{grid-template-columns:74px minmax(0,1fr);gap:10px;margin-bottom:20px}
 .publicSection:has(> .publicRow) .publicTime,.publicSection:has(> .publicRow) .publicItem,.publicItem .jrEventTitle,.publicItem .jrEventDetails>span{font-size:12px}
 }
+
+/* Consistent document typography and restrained monogram placement. */
+.publicSection .infoItem div,
+.publicSection .infoItem div *{font-family:Georgia,'Times New Roman',serif!important;font-size:15px!important;font-weight:400!important;line-height:1.5!important;letter-spacing:0!important;color:#292520!important}
+.publicSection .infoItem small{font-family:'DM Sans',Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:.13em;color:#897965}
+.publicSection .infoGrid{row-gap:20px}
+.publicHead{position:relative}
+.publicHead:after{content:'';position:absolute;top:26px;left:26px;width:41px;height:41px;background:url('/jr-editorial-monogram.svg') center/contain no-repeat;opacity:.85;pointer-events:none}
+.top .mark{width:46px;height:46px;border:0;border-radius:0;background:url('/jr-editorial-monogram.svg') center/contain no-repeat;font-size:0;color:transparent}
+@media(max-width:760px){.publicHead:after{top:23px;left:4px;width:31px;height:31px}.publicSection .infoItem div,.publicSection .infoItem div *{font-size:13px!important}}
