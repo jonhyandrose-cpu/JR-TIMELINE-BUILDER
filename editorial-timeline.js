@@ -9,11 +9,11 @@
     return '<strong class="jrEventTitle">'+safe(lines[0])+'</strong>'+
       (lines.length>1?'<span class="jrEventDetails">'+lines.slice(1).map(s=>'<span>'+safe(s)+'</span>').join('')+'</span>':'');
   };
-  window.JRAutoGettingReady=function(input,index){
+  window.JRAutoGettingReady=function(input,index,currentState){
     const value=String(input.value||'').trim();
     if(!/^getting\s*ready\s*[-–—:]\s*.+/i.test(value)||value.includes('\n'))return;
     const label=value.replace(/^getting\s*ready\s*[-–—:]\s*/i,'').trim();
-    const couple=String(window.state?.couple_name||'').split(/\s+(?:&|and|y|\+)\s+/i).map(x=>x.trim());
+    const couple=String(currentState?.couple_name||'').split(/\s+(?:&|and|y|\+)\s+/i).map(x=>x.trim());
     const first=couple[0]?.split(/\s+/)[0]?.toLowerCase();
     const second=couple[1]?.split(/\s+/)[0]?.toLowerCase();
     const name=label.toLowerCase();
@@ -25,7 +25,7 @@
     if(!type)return;
     const expanded=value+'\n'+(type==='bride'?bride:groom).join('\n');
     input.value=expanded;
-    if(window.state?.timeline?.[index])window.state.timeline[index].item=expanded;
+    if(currentState?.timeline?.[index])currentState.timeline[index].item=expanded;
     input.rows=Math.min(12,expanded.split('\n').length);
   };
 })();
