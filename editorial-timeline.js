@@ -9,23 +9,26 @@
     return '<strong class="jrEventTitle">'+safe(lines[0])+'</strong>'+
       (lines.length>1?'<span class="jrEventDetails">'+lines.slice(1).map(s=>'<span>'+safe(s)+'</span>').join('')+'</span>':'');
   };
+  window.JRExpandGettingReady=function(index,currentState){
+    const row=currentState?.timeline?.[index];if(!row)return false;
+    const value=String(row.item||'').trim();
+    const firstLine=value.split(/\r?\n/)[0].trim();
+    if(!/^getting\s*ready\s*[-–—:]\s*.+/i.test(firstLine))return false;
+    if(value.includes('\n'))return false;
+    const label=firstLine.replace(/^getting\s*ready\s*[-–—:]\s*/i,'').trim();
+    const names=String(document.getElementById('f_couple_name')?.value||currentState.couple_name||'').split(/\s+(?:&|and|y|\+)\s+/i).map(x=>x.trim().split(/\s+/)[0]?.toLowerCase());
+    const n=label.toLowerCase();
+    let type=/\b(bride|novia)\b/i.test(label)?'bride':/\b(groom|novio)\b/i.test(label)?'groom':null;
+    if(!type&&names[0]===n)type='bride';
+    if(!type&&names[1]===n)type='groom';
+    if(!type)return false;
+    row.item=firstLine+'\n'+(type==='bride'?bride:groom).join('\n');
+    return true;
+  };
   window.JRAutoGettingReady=function(input,index,currentState){
-    const value=String(input.value||'').trim();
-    if(!/^getting\s*ready\s*[-–—:]\s*.+/i.test(value)||value.includes('\n'))return;
-    const label=value.replace(/^getting\s*ready\s*[-–—:]\s*/i,'').trim();
-    const couple=String(document.getElementById('f_couple_name')?.value||currentState?.couple_name||'').split(/\s+(?:&|and|y|\+)\s+/i).map(x=>x.trim());
-    const first=couple[0]?.split(/\s+/)[0]?.toLowerCase();
-    const second=couple[1]?.split(/\s+/)[0]?.toLowerCase();
-    const name=label.toLowerCase();
-    let type=null;
-    if(/\b(bride|novia)\b/i.test(label))type='bride';
-    else if(/\b(groom|novio)\b/i.test(label))type='groom';
-    else if(first&&name===first)type='bride';
-    else if(second&&name===second)type='groom';
-    if(!type)return;
-    const expanded=value+'\n'+(type==='bride'?bride:groom).join('\n');
-    input.value=expanded;
-    if(currentState?.timeline?.[index])currentState.timeline[index].item=expanded;
-    input.rows=Math.min(12,expanded.split('\n').length);
+    if(!currentState?.timeline?.[index])return;
+    currentState.timeline[index].item=input.value;
+    if(window.JRExpandGettingReady(index,currentState))input.value=currentState.timeline[index].item;
+    input.rows=Math.min(12,Math.max(2,input.value.split('\n').length));
   };
 })();
