@@ -2,8 +2,19 @@
 function timelineCardActions(slug){
  if(!slug)return '';
  const url=location.origin+'/?timeline='+encodeURIComponent(slug);
- return '<a class="jr-view" href="'+esc(url)+'" target="_blank" rel="noopener">View</a><button type="button" data-share-url="'+esc(url)+'" onclick="shareTimelineCard(this)">Share</button><span class="jr-copy-feedback" role="status"></span>';
+ const month=document.getElementById('jrMonthFilter')?.value||'';
+ const preview=url+'#studio-view='+encodeURIComponent(month);
+ return '<a class="jr-view" href="'+esc(preview)+'">View</a><button type="button" data-share-url="'+esc(url)+'" onclick="shareTimelineCard(this)">Share</button><span class="jr-copy-feedback" role="status"></span>';
 }
+function showTimelineReturn(){
+ const fragment=new URLSearchParams(location.hash.slice(1));
+ if(!new URLSearchParams(location.search).get('timeline')||!fragment.has('studio-view'))return;
+ const month=fragment.get('studio-view');
+ const link=document.getElementById('jrBackToTimelines');
+ link.href=month?'/?month='+encodeURIComponent(month):'/';
+ link.hidden=false;
+}
+showTimelineReturn();
 async function shareTimelineCard(button){
  const url=button.dataset.shareUrl;
  const feedback=button.parentElement.querySelector('.jr-copy-feedback');
