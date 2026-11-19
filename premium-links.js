@@ -8,11 +8,13 @@ function timelineCardActions(slug){
 }
 function showTimelineReturn(){
  const fragment=new URLSearchParams(location.hash.slice(1));
- if(!new URLSearchParams(location.search).get('timeline')||!fragment.has('studio-view'))return;
+ const slug=new URLSearchParams(location.search).get('timeline');
+ if(!slug||!fragment.has('studio-view'))return;
  const month=fragment.get('studio-view');
  const link=document.getElementById('jrBackToTimelines');
  link.href=month?'/?month='+encodeURIComponent(month):'/';
- link.hidden=false;
+ document.getElementById('jrEditTimeline').href=link.getAttribute('href')+'#studio-edit='+encodeURIComponent(slug);
+ document.getElementById('jrStudioActions').hidden=false;
 }
 showTimelineReturn();
 async function shareTimelineCard(button){
