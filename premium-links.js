@@ -1,3 +1,20 @@
+// Card actions use the same stable public URL as the existing Client Link.
+function timelineCardActions(slug){
+ if(!slug)return '';
+ const url=location.origin+'/?timeline='+encodeURIComponent(slug);
+ return '<a class="jr-view" href="'+esc(url)+'" target="_blank" rel="noopener">View</a><button type="button" data-share-url="'+esc(url)+'" onclick="shareTimelineCard(this)">Share</button><span class="jr-copy-feedback" role="status"></span>';
+}
+async function shareTimelineCard(button){
+ const url=button.dataset.shareUrl;
+ const feedback=button.parentElement.querySelector('.jr-copy-feedback');
+ try{
+  await navigator.clipboard.writeText(url);
+  feedback.textContent='Link copied';
+ }catch{
+  feedback.textContent='';
+  prompt('Copy your client link:',url);
+ }
+}
 // JR Premium Client Links + status UI v6
 (function(){
  const clean=s=>String(s||'').trim();
