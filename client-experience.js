@@ -105,7 +105,7 @@ function lightBar(L){
     '<div class="pin" style="left:'+s+'%"></div><span class="t up" style="left:'+s+'%">Sunset</span>'+
     '<span class="t dn" style="left:'+s+'%">'+fmtMin(L.sunset)+'</span></div>'+
     '<div class="jrX-legend"><span><i style="background:#191816"></i>Ceremony</span><span><i style="background:#e3bf74"></i>Golden hour</span><span><i style="background:#5b5650"></i>After sunset</span></div>'+
-    '<div class="jrX-stats"><div><b>'+fmtMin(L.golden).replace(/ (am|pm)/,'')+'</b><span>Golden hour</span></div><div><b>'+fmtMin(L.sunset).replace(/ (am|pm)/,'')+'</b><span>Sunset</span></div><div><b>'+Math.max(0,L.left)+'′</b><span>Light after ceremony</span></div></div>';
+    '<div class="jrX-stats"><div><b>'+fmtMin(L.golden).replace(/ (am|pm)/,'')+'</b><span>Golden hour</span></div><div><b>'+fmtMin(L.sunset).replace(/ (am|pm)/,'')+'</b><span>Sunset</span></div><div><b>'+Math.max(0,L.left)+'′</b><span>After ceremony</span></div></div>';
 }
 function clientLightCopy(L,x){
   if(L.reason!=='ok')return '';
