@@ -7,7 +7,8 @@ alter table public.wedding_timelines
   add column if not exists light_note text,
   add column if not exists client_status text,
   add column if not exists client_comment text,
-  add column if not exists client_responded_at timestamptz;
+  add column if not exists client_responded_at timestamptz,
+  add column if not exists show_light_message boolean not null default true;
 
 -- La pareja responde solo a través de esta función (no puede editar nada más).
 create or replace function public.respond_timeline(p_slug text, p_status text, p_comment text default null)

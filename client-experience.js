@@ -109,6 +109,7 @@ function lightBar(L){
 }
 function clientLightCopy(L,x){
   if(L.reason!=='ok')return '';
+  if(x.show_light_message===false)return '';
   if(L.status==='ok')return '<p class="jrX-msg">Your day is beautifully timed with the light. Your ceremony ends at '+fmtMin(L.cerEnd)+', leaving about '+L.left+' minutes of natural light before sunset at '+fmtMin(L.sunset)+(L.firstLook?', and your first look gives us time for portraits earlier in the day':'')+'.</p>';
   const note=clean(x.light_note)||'Your ceremony ends at '+fmtMin(L.cerEnd)+' and the sun sets at '+fmtMin(L.sunset)+', which leaves about '+Math.max(0,L.left)+' minutes of natural light for '+(L.firstLook?'your family photos and sunset portraits':'your family, wedding party and couple portraits')+'. We\'d love to talk about '+(L.firstLook?'a little more time after the ceremony':'a first look or an earlier ceremony')+' so every photo glows.';
   return '<div class="jrX-alert"><div class="eyebrow" style="margin-bottom:8px">A note about your light</div><p class="jrX-msg" style="margin:0">'+E(note)+'</p><div class="jrX-btns" data-jrx-light><button class="jrX-btn" data-resp="light_accepted">Sounds good</button><button class="jrX-btn o" data-resp="light_discuss">Let\'s talk</button></div></div>';
@@ -128,7 +129,9 @@ function shareBlock(url,couple){
     '<button type="button" data-copy="'+E(url)+'">Copy link</button></div></section>';
 }
 function respondBlock(x){
-  const done=x&&x.client_status;
+  let done=x&&x.client_status;
+  const outdated=done&&x.client_responded_at&&x.updated_at&&new Date(x.updated_at)-new Date(x.client_responded_at)>60000;
+  if(outdated)return '<section class="publicSection jrX-respond"><h2>Your timeline was updated</h2><p class="jrX-msg" style="margin-top:0">We made some changes after you confirmed it'+(x.updated_at?' (updated '+new Date(x.updated_at).toLocaleDateString('en-US',{month:'long',day:'numeric'})+')':'')+'. Please take another look and let us know it still looks perfect.</p><div class="jrX-btns" data-jrx-main><button class="jrX-btn" data-resp="accepted">Looks perfect</button><button class="jrX-btn o" data-ask>Request a change</button></div></section>';
   if(done==='accepted')return '<section class="publicSection jrX-respond"><h2>Your timeline</h2><div class="jrX-done">You confirmed this timeline'+(x.client_responded_at?' on '+new Date(x.client_responded_at).toLocaleDateString('en-US',{month:'long',day:'numeric'}):'')+'. Thank you! If anything changes, we\'ll update this same link.</div></section>';
   return '<section class="publicSection jrX-respond"><h2>Does everything look right?</h2><p class="jrX-msg" style="margin-top:0">Take a moment to review your day. If something needs a tweak, tell us and we\'ll update this same link.</p>'+
     (done==='changes_requested'?'<div class="jrX-done" style="background:#fbf4ec;color:#7a5a2e">We received your changes and we\'re on it.</div>':'')+
@@ -154,7 +157,7 @@ async function enhanceClient(card,isPreview){
     x={couple_name:v('couple_name'),wedding_date:v('wedding_date'),location:v('location'),ceremony:v('ceremony'),
        timeline:Array.from(document.querySelectorAll('#rows .timelineRow')).map(r=>({time:r.querySelector('input')?.value||'',item:r.querySelector('textarea')?.value||''})),
        key_requests:(document.getElementById('requests')?.value||'').split('\n').filter(Boolean),
-       studio_note:document.getElementById('jrXStudioNote')?.value||S()?.studio_note||'',light_note:document.getElementById('jrXLightNote')?.value||S()?.light_note||''};
+       show_light_message:document.getElementById('jrXShowLight')?document.getElementById('jrXShowLight').checked:(S()?.show_light_message!==false),studio_note:document.getElementById('jrXStudioNote')?.value||S()?.studio_note||'',light_note:document.getElementById('jrXLightNote')?.value||S()?.light_note||''};
   }else{
     slug=new URLSearchParams(location.search).get('timeline');
     if(!slug){const m=location.pathname.match(/^\/timelines\/([^/]+)/i);if(m){try{slug=(typeof fixedClientRoutes!=='undefined'&&fixedClientRoutes[m[1].toLowerCase()])||null}catch(e){slug=null}}}
@@ -232,6 +235,12 @@ function setupEditor(){
     sn.oninput=()=>{const st=S();if(st)st.studio_note=sn.value};ln.oninput=()=>{const st=S();if(st)st.light_note=ln.value};
   }
   body.addEventListener('input',scheduleCheck);body.addEventListener('change',scheduleCheck);body.addEventListener('click',e=>{if(e.target.closest('.move,button'))scheduleCheck()});
+  if(hasCol('show_light_message')){
+    const t=document.createElement('label');t.style.cssText='display:flex;gap:10px;align-items:center;margin:-14px 0 26px;font-size:14px;cursor:pointer';
+    t.innerHTML='<input type="checkbox" id="jrXShowLight" style="width:20px;height:20px;accent-color:#191816"> Show the light message to the couple';
+    check.insertAdjacentElement('afterend',t);const cb=t.querySelector('input');cb.checked=S()?.show_light_message!==false;
+    cb.onchange=()=>{const st=S();if(st)st.show_light_message=cb.checked};
+  }
   runCheck();
 }
 
@@ -240,7 +249,8 @@ const firstNames=c=>clean(c).split(/\s*(?:&|and|y|\+)\s*/i).map(s=>s.split(' ')[
 function templates(d,L,url){
   const names=firstNames(d.couple_name);
   const ready={subject:'Your wedding day timeline · '+clean(d.couple_name),
-    body:'Hi '+names+',\n\nYour wedding day timeline is ready! Everything we planned together lives in one place, and it stays up to date whenever something changes.\n\nTake a look when you have a moment. At the end of the page you can tap "Looks perfect" or let us know if anything needs a tweak. Feel free to share it with your planner, family and wedding party.'+(L&&L.reason==='ok'?'\n\nGood news about the light: your ceremony ends at '+fmtMin(L.cerEnd)+' and sunset is at '+fmtMin(L.sunset)+', so we\'ll have beautiful natural light for your photos.':'')+'\n\nWith love,\nJonhy & Rose'};
+    body:'Hi '+names+',\n\nYour wedding day timeline is ready! Everything we planned together lives in one place, and it stays up to date whenever something changes.\n\nTake a look when you have a moment. At the end of the page you can tap "Looks perfect" or let us know if anything needs a tweak. Feel free to share it with your planner, family and wedding party.'+'\n\nWith love,\nJonhy & Rose'};
+  ready.lightPara=L&&L.reason==='ok'?'Good news about the light: your ceremony ends at '+fmtMin(L.cerEnd)+' and sunset is at '+fmtMin(L.sunset)+', so we\'ll have beautiful natural light for your photos.':'';
   const left=L&&L.reason==='ok'?Math.max(0,L.left):null;
   const light={subject:'A note about your wedding light · '+clean(d.couple_name),
     body:'Hi '+names+',\n\nWe went through your timeline with a lot of care and wanted to share something important about the light.\n\n'+(left!=null?'Your ceremony is at '+fmtMin(L.cerStart)+' and the sun sets at '+fmtMin(L.sunset)+'. That leaves about '+left+' minutes of natural light after the ceremony, and we need around '+L.need+' minutes for '+(L.firstLook?'your family photos and sunset portraits':'your family, wedding party and couple portraits')+'.':'The time between your ceremony and sunset is very short for all the photos we have planned.')+'\n\nA few options we\'d love you to consider:\n\n• '+(L&&L.firstLook?'Adding a little more time after the ceremony for portraits.':'A first look before the ceremony, so we can do your portraits and wedding party photos in beautiful light.')+'\n• Moving the ceremony a bit earlier, so every photo happens in natural light.\n• Keeping the current plan, knowing that some photos after sunset will use flash.\n\nYou can see your wedding light and reply right from your timeline. We\'re happy to talk it through anytime.\n\nWith love,\nJonhy & Rose'};
@@ -272,12 +282,16 @@ async function openSend(){
   m.innerHTML='<div class="jrX-sheet"><div class="eyebrow">Send to couple</div><h3>'+E(d.couple_name||'Timeline')+'</h3>'+
     '<div class="jrX-tabs"><button data-t="ready">Timeline ready</button><button data-t="light">Wedding light</button></div>'+
     '<div id="jrXHint" class="muted" style="font-size:12.5px"></div>'+
+    '<label id="jrXLightWrap" style="display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;font-size:14px;color:#191816;font-weight:500;cursor:pointer"><input type="checkbox" id="jrXLightPara" checked style="width:20px;height:20px;accent-color:#191816"> Include the light message</label>'+
     '<label>Subject</label><input id="jrXSubj"><label>Message</label><textarea id="jrXBody" rows="14"></textarea>'+
     '<div class="muted" style="font-size:12px;margin-top:8px">The link to their timeline goes on the "View your timeline" button: '+E(url)+'</div>'+
     '<div class="jrX-share" style="margin-top:16px"><button class="main" data-x="email">Copy email with design</button><a data-x="wa" target="_blank" rel="noopener" href="#">WhatsApp</a><a data-x="mail" href="#">Open in Mail</a><button data-x="text">Copy text</button><button data-x="close">Close</button></div></div>';
   document.body.appendChild(m);
   const subj=m.querySelector('#jrXSubj'),bod=m.querySelector('#jrXBody'),hint=m.querySelector('#jrXHint');
-  const setT=t=>{cur=t;subj.value=T[t].subject;bod.value=T[t].body;m.querySelectorAll('.jrX-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const lp=m.querySelector('#jrXLightPara'),lw=m.querySelector('#jrXLightWrap');
+  const withPara=(body,on)=>{const p=T.ready.lightPara;if(!p)return body;const clean2=body.replace('\n\n'+p,'');return on?clean2.replace(/\n\nWith love,/,'\n\n'+p+'\n\nWith love,'):clean2};
+  lp.onchange=()=>{if(cur==='ready'){bod.value=withPara(bod.value,lp.checked);upd()}};
+  const setT=t=>{cur=t;subj.value=T[t].subject;bod.value=t==='ready'?withPara(T.ready.body,lp.checked):T[t].body;lw.style.display=(t==='ready'&&T.ready.lightPara)?'flex':'none';m.querySelectorAll('.jrX-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
     hint.textContent=t==='light'?'Para cuando hay un tema con el sol. Edita lo que quieras antes de enviar.':(L&&L.status&&L.status!=='ok'?'Ojo: la revisión de luz marca que falta luz. Considera la plantilla "Wedding light".':'La luz alcanza: esta es la plantilla recomendada.');upd()};
   const upd=()=>{const plain=bod.value+'\n\n'+url;m.querySelector('[data-x="wa"]').href='https://wa.me/?text='+encodeURIComponent(plain);m.querySelector('[data-x="mail"]').href='mailto:?subject='+encodeURIComponent(subj.value)+'&body='+encodeURIComponent(plain)};
   subj.oninput=upd;bod.oninput=upd;
@@ -302,7 +316,8 @@ function decorateDashboard(){
     if(card.dataset.jrx)return;const btn=card.querySelector('[onclick^="openTimeline"]');if(!btn)return;
     const id=(btn.getAttribute('onclick').match(/'([^']+)'/)||[])[1];const x=A.find(t=>t.id===id);if(!x)return;card.dataset.jrx='1';
     const map={accepted:['ok','Accepted ✓'],changes_requested:['warn','Changes requested'],light_accepted:['ok','Light plan ✓'],light_discuss:['warn','Wants to talk']};
-    const s=map[x.client_status];if(!s)return;
+    let s=map[x.client_status];if(!s)return;
+    if(x.client_responded_at&&x.updated_at&&new Date(x.updated_at)-new Date(x.client_responded_at)>60000)s=['warn',x.client_status==='accepted'?'Updated since accepted':'Updated since reply'];
     const c=card.querySelector('.couple');if(c)c.insertAdjacentHTML('beforeend','<span class="jrX-pill '+s[0]+'" title="'+E(x.client_comment||'')+'">'+s[1]+'</span>');
   });
 }
@@ -313,7 +328,7 @@ if(typeof save==='function'&&!window.__jrxSave){
   window.save=async function(){
     const st=S();if(hasCol('studio_note')&&st){
       const origFetch=window.fetch;
-      window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf(API)===0&&o&&(o.method==='POST'||o.method==='PATCH')&&o.body){try{const b=JSON.parse(o.body);b.studio_note=st.studio_note||null;b.light_note=st.light_note||null;o={...o,body:JSON.stringify(b)}}catch(e){}}return origFetch.call(this,u,o)};
+      window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf(API)===0&&o&&(o.method==='POST'||o.method==='PATCH')&&o.body){try{const b=JSON.parse(o.body);b.studio_note=st.studio_note||null;b.light_note=st.light_note||null;if(hasCol('show_light_message'))b.show_light_message=st.show_light_message!==false;o={...o,body:JSON.stringify(b)}}catch(e){}}return origFetch.call(this,u,o)};
       try{return await orig.apply(this,arguments)}finally{window.fetch=origFetch}
     }
     return orig.apply(this,arguments);
