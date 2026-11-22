@@ -51,5 +51,16 @@
   }
   const publicObserver=new MutationObserver(()=>{if(document.querySelector('.publicCard'))renderPublic();});
   function installPublic(){const app=document.getElementById('app');if(app)publicObserver.observe(app,{childList:true,subtree:true});renderPublic();}
+  // Client Preview (draft): show the same sunset / golden hour card the couple sees.
+  async function renderPreview(){
+    const card=document.querySelector('.jrDraftOverlay .publicCard');if(!card||card.dataset.jrLight)return;card.dataset.jrLight='1';
+    const loc=document.getElementById('f_location')?.value||'',date=document.getElementById('f_wedding_date')?.value||'';
+    const essential=[...card.querySelectorAll('.publicSection')].find(s=>/Essential Information/i.test(s.querySelector('h2')?.textContent||''));
+    if(!essential)return;
+    const slot=document.createElement('div');slot.className='jrPreviewLightSlot';slot.innerHTML='<div class="muted" style="font-size:12px;padding:18px 0">Calculating wedding light…</div>';essential.insertAdjacentElement('afterend',slot);
+    try{const info=await calculate(loc,date);slot.innerHTML=info?publicCard(info):'<div class="muted" style="font-size:12px;padding:18px 0">Wedding light: add a valid venue and date to calculate sunset.</div>';}
+    catch(e){console.error('JR preview light',e);slot.innerHTML='<div class="muted" style="font-size:12px;padding:18px 0">Wedding light unavailable right now.</div>'}
+  }
+  new MutationObserver(()=>{if(document.querySelector('.jrDraftOverlay .publicCard'))renderPreview()}).observe(document.documentElement,{childList:true,subtree:true});
   window.JRLightPlanner={refresh,calculate,renderPublic};install();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installPublic,{once:true});else installPublic();
 })();
