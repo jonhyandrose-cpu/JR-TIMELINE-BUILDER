@@ -176,7 +176,7 @@ async function enhanceClient(card,isPreview){
     if(!slug)return;
     x=await fetchRow(slug);if(!x)return;
   }
-  const url=isPreview?'(client link)':location.href.split('#')[0];
+  const url=isPreview?'(client link)':(window.JR_PUBLIC_ORIGIN||location.origin)+location.pathname+location.search;
   const head=card.querySelector('.publicHead');
   if(head&&(clean(x.studio_note)||(isPreview&&hasCol('studio_note'))))head.insertAdjacentHTML('afterend','<section class="publicSection jrX-noteSec"><div class="eyebrow" style="margin-bottom:10px">A note from us</div><p class="jrX-note">'+E(x.studio_note)+'</p><p class="jrX-sign">— Jonhy &amp; Rose</p></section>');
   // light: replace the plain light card with the bar experience
@@ -333,7 +333,7 @@ function emailHTML(d,subjectBody,url){
 async function openSend(){
   if(typeof sync==='function'){try{sync()}catch(e){}}
   const st=S();if(!st?.id||!st.public_slug){alert('Save Online first, then send it to the couple.');return}
-  const url=location.origin+'/?timeline='+st.public_slug;
+  const url=(window.JR_PUBLIC_ORIGIN||location.origin)+'/?timeline='+st.public_slug;
   const d={couple_name:st.couple_name,wedding_date:st.wedding_date};
   const L=lastLight&&lastLight.reason==='ok'?lastLight:await withLight(editorData());
   const T=templates(d,L,url);let cur=(L&&L.reason==='ok'&&L.status!=='ok')?'light':'ready';

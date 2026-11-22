@@ -1,7 +1,7 @@
 // Card actions use the same stable public URL as the existing Client Link.
 function timelineCardActions(slug){
  if(!slug)return '';
- const url=location.origin+'/?timeline='+encodeURIComponent(slug);
+ const url=(window.JR_PUBLIC_ORIGIN||location.origin)+'/?timeline='+encodeURIComponent(slug);
  const month=document.getElementById('jrMonthFilter')?.value||'';
  const preview=url+'#studio-view='+encodeURIComponent(month);
  return '<a class="jr-view" href="'+esc(preview)+'">View</a><button type="button" data-share-url="'+esc(url)+'" onclick="shareTimelineCard(this)">Share</button><span class="jr-copy-feedback" role="status"></span>';
@@ -41,9 +41,9 @@ async function shareTimelineCard(button){
  function dashboardDate(row){const h=clean(row.closest('.month')?.querySelector('.monthHead h2')?.textContent),m=h.match(/^([A-Za-z]+)\s+(\d{4})$/),day=parseInt(clean(row.querySelector('.datebox')?.childNodes[0]?.textContent).replace(/\D/g,''),10);if(!m||!day)return null;return new Date(+m[2],months[m[1].toLowerCase()],day,12)}
  function decorateDashboard(){document.querySelectorAll('.wedding').forEach(row=>{const s=statusFromDate(dashboardDate(row));let tag=row.querySelector('.jrWeddingStatus');if(!tag){tag=document.createElement('span');tag.className='jrWeddingStatus';row.querySelector('.couple')?.appendChild(tag)}if(tag){tag.textContent=s.label;tag.style.cssText='display:table;margin-top:8px;padding:5px 8px;border-radius:999px;font-family:Inter,-apple-system,sans-serif;font-size:8px;line-height:1;letter-spacing:.11em;font-weight:800;'+badgeStyle(s.kind)}})}
  function currentWedding(){if(typeof state!=='undefined'&&state&&state.couple_name)return state;return null}
- function copyPretty(x){if(!x?.public_slug)return false;const u=location.origin+'/?timeline='+encodeURIComponent(x.public_slug);navigator.clipboard?.writeText(u);prompt('Client link (copied):',u);return true}
+ function copyPretty(x){if(!x?.public_slug)return false;const u=(window.JR_PUBLIC_ORIGIN||location.origin)+'/?timeline='+encodeURIComponent(x.public_slug);navigator.clipboard?.writeText(u);prompt('Client link (copied):',u);return true}
  async function bySlug(slug){try{const r=await fetch(API+'?public_slug=eq.'+encodeURIComponent(slug)+'&select=*',{headers:headers()}),d=await r.json();return d[0]||null}catch(e){return null}}
- async function premiumClientLink(slug){let x=(typeof all!=='undefined'?all:[]).find(v=>v.public_slug===slug)||await bySlug(slug);if(!copyPretty(x)){const u=location.origin+'/?timeline='+encodeURIComponent(slug);navigator.clipboard?.writeText(u);prompt('Client link (copied):',u)}}
+ async function premiumClientLink(slug){let x=(typeof all!=='undefined'?all:[]).find(v=>v.public_slug===slug)||await bySlug(slug);if(!copyPretty(x)){const u=(window.JR_PUBLIC_ORIGIN||location.origin)+'/?timeline='+encodeURIComponent(slug);navigator.clipboard?.writeText(u);prompt('Client link (copied):',u)}}
  const basePublic=window.publicView;
  async function premiumPublicView(slug){await basePublic(slug);const x=await bySlug(slug);if(!x)return;const s=statusFor(x),badge=document.querySelector('.live');if(badge){badge.innerHTML='<span class="dot"></span> '+s.label;badge.style.cssText+=';'+badgeStyle(s.kind)}const foot=document.querySelector('.footer');if(foot)foot.innerHTML=foot.innerHTML.replace(/^LIVE TIMELINE/i,s.kind==='done'?'WEDDING COMPLETED':s.kind==='today'?'LIVE · WEDDING DAY':'UPCOMING TIMELINE')}
  function nameMatch(pathSlug,name){
