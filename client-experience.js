@@ -316,22 +316,24 @@ function templates(d,L,url){
   return {ready,light};
 }
 function emailHTML(d,subjectBody,url,pay,payLabel){
+  // Gmail-safe: no table/cell backgrounds (Gmail drops them); colors live on the links themselves.
   const paras=E(subjectBody).split(/\n\n+/).map(p=>p.replace(/\n/g,'<br>'));
   let signTop='Looking forward to your day,';
   if(paras.length&&/Jonhy &amp; Rose\s*$/i.test(paras[paras.length-1])){const last=paras.pop();signTop=last.split('<br>')[0].replace(/Jonhy &amp; Rose\s*$/i,'').trim()||signTop}
-  const font='Helvetica,Arial,sans-serif',serif="'Cormorant Garamond',Georgia,'Times New Roman',serif";
-  return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede7"><tr><td align="center" style="padding:28px 12px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fbfaf7;border:1px solid #e2ddd3">'+
-  '<tr><td align="center" style="padding:40px 30px 10px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="width:54px;height:54px;background:#000;color:#fff;font-family:Georgia,serif;font-size:22px">JR</td></tr></table></td></tr>'+
-  '<tr><td align="center" style="padding:16px 30px 0;font-family:'+font+';font-size:10px;letter-spacing:4px;color:#8e7d6d">THE WEDDING DAY</td></tr>'+
-  '<tr><td align="center" style="padding:12px 30px 6px;font-family:'+serif+';font-size:40px;line-height:44px;font-style:italic;color:#24231f">'+E(d.couple_name)+'</td></tr>'+
-  '<tr><td align="center" style="padding:0 30px;font-family:'+font+';font-size:11px;line-height:19px;letter-spacing:2px;color:#72685e">'+E(String(d.wedding_date||'').toUpperCase())+'</td></tr>'+
-  '<tr><td align="center" style="padding:24px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:44px;height:1px;background:#cfc5b6;font-size:0;line-height:0">&nbsp;</td></tr></table></td></tr>'+
-  paras.map(p=>'<tr><td style="padding:0 36px 16px;font-family:'+font+';font-size:15px;line-height:25px;color:#3a3631">'+p+'</td></tr>').join('')+
-  '<tr><td align="center" style="padding:12px 30px 30px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#191816;border-radius:999px"><a href="'+E(url)+'" style="display:inline-block;padding:15px 34px;font-family:'+font+';font-size:12px;letter-spacing:2px;color:#fff;text-decoration:none">VIEW YOUR TIMELINE</a></td></tr></table></td></tr>'+
-  (pay?'<tr><td align="center" style="padding:0 30px 34px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#ffffff;border:1px solid #191816;border-radius:999px"><a href="'+E(pay)+'" style="display:inline-block;padding:14px 30px;font-family:'+font+';font-size:12px;letter-spacing:2px;color:#191816;text-decoration:none">'+E((payLabel||'Make a payment').toUpperCase())+'</a></td></tr></table></td></tr>':'')+
-  '<tr><td align="center" style="padding:0 30px 6px;font-family:'+serif+';font-size:20px;font-style:italic;color:#5a524a">'+signTop+'</td></tr>'+
-  '<tr><td align="center" style="padding:0 30px 40px;font-family:'+font+';font-size:11px;letter-spacing:4px;color:#24231f">JONHY &amp; ROSE</td></tr>'+
-  '<tr><td align="center" style="padding:16px 30px;border-top:1px solid #e8e3db;font-family:'+font+';font-size:10px;letter-spacing:2px;color:#9c8d7b">JONHY &amp; ROSE PHOTOGRAPHY STUDIO · CANCÚN · RIVIERA MAYA</td></tr></table></td></tr></table>';
+  const origin=window.JR_PUBLIC_ORIGIN||location.origin;
+  const btn=(href,label,dark)=>'<div style="text-align:center;padding:10px 0 '+(dark?'28':'32')+'px"><a href="'+E(href)+'" style="display:inline-block;background-color:'+(dark?'#191816':'#ffffff')+';color:'+(dark?'#ffffff':'#191816')+';border:1px solid #191816;border-radius:999px;padding:15px 32px;font-size:12px;letter-spacing:2px;text-decoration:none;font-weight:bold">'+E(label.toUpperCase())+'</a></div>';
+  return '<div style="max-width:520px;margin:0 auto;font-family:Helvetica,Arial,sans-serif;color:#3a3631;text-align:left">'+
+  '<div style="text-align:center;padding:30px 0 6px"><img src="'+origin+'/app-icon-192.png?v=14" width="64" height="64" alt="Jonhy &amp; Rose" style="display:inline-block;width:64px;height:64px;border:0"></div>'+
+  '<div style="text-align:center;font-size:10px;letter-spacing:4px;color:#8e7d6d;padding-top:14px">THE WEDDING DAY</div>'+
+  '<div style="text-align:center;font-family:Georgia,\'Times New Roman\',serif;font-size:38px;line-height:44px;font-style:italic;color:#24231f;padding:10px 0 6px">'+E(d.couple_name)+'</div>'+
+  '<div style="text-align:center;font-size:11px;line-height:19px;letter-spacing:2px;color:#72685e">'+E(String(d.wedding_date||'').toUpperCase())+'</div>'+
+  '<div style="text-align:center;color:#cfc5b6;padding:18px 0 22px">———</div>'+
+  paras.map(p=>'<p style="font-size:15px;line-height:25px;margin:0 0 16px">'+p+'</p>').join('')+
+  btn(url,'View your timeline',true)+
+  (pay?btn(pay,payLabel||'Make a payment',false):'')+
+  '<div style="text-align:center;font-family:Georgia,\'Times New Roman\',serif;font-size:20px;font-style:italic;color:#5a524a">'+signTop+'</div>'+
+  '<div style="text-align:center;font-size:11px;letter-spacing:4px;color:#24231f;padding:6px 0 30px">JONHY &amp; ROSE</div>'+
+  '<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#9c8d7b;border-top:1px solid #e8e3db;padding:16px 0">JONHY &amp; ROSE PHOTOGRAPHY STUDIO · CANCÚN · RIVIERA MAYA</div></div>';
 }
 async function openSend(){
   if(typeof sync==='function'){try{sync()}catch(e){}}
