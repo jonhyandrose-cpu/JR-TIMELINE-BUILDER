@@ -345,8 +345,9 @@ async function openSend(){
     '<div class="jrX-tabs"><button data-t="ready">Timeline ready</button><button data-t="light">Wedding light</button></div>'+
     '<div id="jrXHint" class="muted" style="font-size:12.5px"></div>'+
     '<label id="jrXLightWrap" style="display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;font-size:14px;color:#191816;font-weight:500;cursor:pointer"><input type="checkbox" id="jrXLightPara" checked style="width:20px;height:20px;accent-color:#191816"> Include the light message</label>'+
-    '<label>Payment link (optional)</label><input id="jrXPay" type="url" placeholder="https://buy.stripe.com/…">'+
-    '<label>Payment button text</label><input id="jrXPayLabel" value="Make your final payment">'+
+    '<label style="display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;font-size:15px;color:#191816;font-weight:500;cursor:pointer;margin-top:16px"><input type="checkbox" id="jrXPayOn" style="width:22px;height:22px;accent-color:#191816"> Add payment button</label>'+
+    '<div id="jrXPayBox" style="display:none"><label>Payment link</label><input id="jrXPay" type="url" placeholder="https://buy.stripe.com/…">'+
+    '<label>Payment button text</label><input id="jrXPayLabel" value="Make your final payment"></div>'+
     '<label>Subject</label><input id="jrXSubj"><label>Message</label><textarea id="jrXBody" rows="14"></textarea>'+
     '<div class="muted" style="font-size:12px;margin-top:8px">The link to their timeline goes on the "View your timeline" button: '+E(url)+'</div>'+
     '<div class="jrX-share" style="margin-top:16px"><button class="main" data-x="email">Copy email with design</button><a data-x="wa" target="_blank" rel="noopener" href="#">WhatsApp</a><a data-x="mail" href="#">Open in Mail</a><button data-x="text">Copy text</button><button data-x="close">Close</button></div></div>';
@@ -357,16 +358,16 @@ async function openSend(){
   lp.onchange=()=>{if(cur==='ready'){bod.value=withPara(bod.value,lp.checked);upd()}};
   const setT=t=>{cur=t;subj.value=T[t].subject;bod.value=t==='ready'?withPara(T.ready.body,lp.checked):T[t].body;lw.style.display=(t==='ready'&&T.ready.lightPara)?'flex':'none';m.querySelectorAll('.jrX-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
     hint.textContent=t==='light'?'Para cuando hay un tema con el sol. Edita lo que quieras antes de enviar.':(L&&L.status&&L.status!=='ok'?'Ojo: la revisión de luz marca que falta luz. Considera la plantilla "Wedding light".':'La luz alcanza: esta es la plantilla recomendada.');upd()};
-  const payEl=m.querySelector('#jrXPay'),payLbl=m.querySelector('#jrXPayLabel');const payTxt=()=>clean(payEl.value)?'\n\n'+(clean(payLbl.value)||'Make a payment')+': '+clean(payEl.value):'';
+  const payEl=m.querySelector('#jrXPay'),payLbl=m.querySelector('#jrXPayLabel'),payOn=m.querySelector('#jrXPayOn'),payBox=m.querySelector('#jrXPayBox');const payUrl=()=>payOn.checked?clean(payEl.value):'';const payTxt=()=>payUrl()?'\n\n'+(clean(payLbl.value)||'Make a payment')+': '+payUrl():'';
   const upd=()=>{const plain=bod.value+'\n\nView your timeline: '+url+payTxt();m.querySelector('[data-x="wa"]').href='https://wa.me/?text='+encodeURIComponent(plain);m.querySelector('[data-x="mail"]').href='mailto:?subject='+encodeURIComponent(subj.value)+'&body='+encodeURIComponent(plain)};
-  subj.oninput=upd;bod.oninput=upd;payEl.oninput=upd;payLbl.oninput=upd;
+  subj.oninput=upd;bod.oninput=upd;payEl.oninput=upd;payLbl.oninput=upd;payOn.onchange=()=>{payBox.style.display=payOn.checked?'block':'none';upd();if(payOn.checked)payEl.focus()};
   m.querySelectorAll('.jrX-tabs button').forEach(b=>b.onclick=()=>setT(b.dataset.t));
   m.addEventListener('click',async e=>{
     if(e.target===m){m.remove();return}
     const a=e.target.closest('[data-x]');if(!a)return;const k=a.dataset.x;
     if(k==='close'){m.remove();return}
     if(k==='text'){e.preventDefault();const t=bod.value+'\n\nView your timeline: '+url+payTxt();try{await navigator.clipboard.writeText(t);toast('Message copied')}catch(_){prompt('Copy:',t)}return}
-    if(k==='email'){e.preventDefault();const html=emailHTML(d,bod.value,url,clean(payEl.value),clean(payLbl.value)),plain=bod.value+'\n\nView your timeline: '+url+payTxt();
+    if(k==='email'){e.preventDefault();const html=emailHTML(d,bod.value,url,payUrl(),clean(payLbl.value)),plain=bod.value+'\n\nView your timeline: '+url+payTxt();
       try{if(window.ClipboardItem&&navigator.clipboard?.write){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([plain],{type:'text/plain'})})]);toast('Email copied · paste it in Gmail')}
           else{await navigator.clipboard.writeText(plain);toast('Text copied (design not supported here)')}}catch(_){prompt('Copy:',plain)}
       return}
