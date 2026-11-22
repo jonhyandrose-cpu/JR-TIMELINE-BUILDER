@@ -1,14 +1,15 @@
-// JR Smart Questionnaire Parser v3 — Jonhy & Rose wedding logic
+// JR Smart Questionnaire Parser v4 (Key Moments) — Jonhy & Rose wedding logic
 (function(){
   const clean=s=>String(s||'').replace(/\u00a0/g,' ').replace(/[ \t]+/g,' ').trim();
   const timeRe=/(1[0-2]|0?[1-9])(?:[:.]([0-5]\d))?\s*(a\.?m\.?|p\.?m\.?)/i;
-  const qStarts=/^(Bride's full name|How does the bride|Groom's full name|How does the groom|Would you like photos|Would you like a MAGAZINE|Will you want a first look|Will you want a dad|Will you want a bridesmaids|Are you both writing personal vows|For the family portraits|Are there any family situations|If there is a situation|Is there a specific photo|Are there any specific photos|Will there be other photographers|Do you have videography|Confirm the wedding package|If you select \*custom|Do you have any additional|Other extra service|Bride's phone|Another phone|Name and best way to contact your wedding coordinator|Wedding date|Location of event|Ceremony type|If you select "Other"|Estimated guests|How many bridesmaids|Bride's getting ready|Groom's getting ready|Place and time of the ceremony|What is the most important part of the ceremony|How long do you expect the ceremony|Will the ceremony be outdoors|Place and time of the cocktail|Is there any special setup for the cocktail|Place and time of the reception|Will there be pyrotechnics|Do you have any specific events|We love getting to know)/i;
-  const instruction=/^(Enter your answer|Essential information|Extra photographer|Extra hour|Welcome party|Drone|Other|THE FIRST LOOK|A MAGAZINE|LET US KNOW)/i;
-  function answerAfter(lines,label){
+  const qStarts=/^(How did you meet|How long have you been together|What's one of your favorite|What is your favorite thing|If you could choose 3 words|What are the 3 most important|What do you expect from us|What photo styles|Are there any poses|JR_CHECKED|Bride's full name|How does the bride|Groom's full name|How does the groom|Would you like photos|Would you like a MAGAZINE|Will you want a first look|Will you want a dad|Will you want a bridesmaids|Are you both writing personal vows|For the family portraits|Are there any family situations|If there is a situation|Is there a specific photo|Are there any specific photos|Will there be other photographers|Do you have videography|Confirm the wedding package|If you select \*custom|Do you have any additional|Other extra service|Bride's phone|Another phone|Name and best way to contact your wedding coordinator|Wedding date|Location of event|Ceremony type|If you select "Other"|Estimated guests|How many bridesmaids|Bride's getting ready|Groom's getting ready|Place and time of the ceremony|What is the most important part of the ceremony|How long do you expect the ceremony|Will the ceremony be outdoors|Place and time of the cocktail|Is there any special setup for the cocktail|Place and time of the reception|Will there be pyrotechnics|Do you have any specific events|We love getting to know)/i;
+  const instruction=/^(necessary\.?$|This is important for me|E\.g\.|a family member to let us know|Enter your answer|Essential information|Extra photographer|Extra hour|Welcome party|Drone|Other|THE FIRST LOOK|A MAGAZINE|LET US KNOW)/i;
+  function answerAfter(lines,label,maxLines){
     const re=label instanceof RegExp?label:new RegExp('^'+label,'i');
     for(let i=0;i<lines.length;i++) if(re.test(lines[i])){
-      const a=[];
-      for(let j=i+1;j<lines.length&&j<i+8;j++){
+      const a=[];let start=i+1;
+      if(!/[?:]\s*$/.test(lines[i])){for(let k=i+1;k<lines.length&&k<i+4;k++){const lk=clean(lines[k]);if(qStarts.test(lk))break;if(/\?\s*$/.test(lk)){start=k+1;break}}}
+      for(let j=start;j<lines.length&&j<start+(maxLines||8);j++){
         const v=clean(lines[j]); if(!v)continue;
         if(qStarts.test(v))break;
         if(instruction.test(v)&&!a.length)continue;
@@ -79,6 +80,55 @@
     if(/mother|groom.*dance/i.test(surprises))pushUnique(data.key_requests,'Groom & Mother Dance');
     if(surprises&&!/^no[.! ]*$/i.test(surprises)&&!/father|mother|dance/i.test(surprises))pushUnique(data.key_requests,surprises);
 
+    // ---- Key Moments v4: every important answer, grouped by category ----
+    const checked=k=>{const m=String(text||'').match(new RegExp('^JR_CHECKED '+k+': (.*)$','mi'));return m?m[1].split('|').map(clean).filter(Boolean):[]};
+    const none=v=>!clean(v)||/^(no|none|n\/a|na|not applicable|nope|no\.|not at this time.*)$/i.test(clean(v));
+    const unYes=v=>clean(v).replace(/^yes[,.!:\s-]*/i,'').replace(/^for\s+/i,'');
+    const KM=(cat,v)=>{v=clean(v);if(v)pushUnique(data.key_requests,cat+': '+v.charAt(0).toUpperCase()+v.slice(1))};
+    data.key_requests=[];
+    const brideGR=answerAfter(lines,/^Bride's getting ready location/i),groomGR=answerAfter(lines,/^Groom's getting ready location/i);
+    if(gettingReady&&!no(gettingReady)) KM('Getting ready',/both/i.test(gettingReady)?'Full coverage for both':gettingReady);
+    if(brideGR||groomGR) KM('Getting ready',[brideGR&&'Bride at '+brideGR,groomGR&&'Groom at '+groomGR].filter(Boolean).join(' · '));
+    if(reveals&&!none(reveals)&&!/^no\b/i.test(reveals)) KM('Reveal',/^yes\.?$/i.test(reveals)?'Family reveal':'Family reveal — '+unYes(reveals));
+    if(yes(bridesReveal)||(/reveal/i.test(bridesReveal)&&!no(bridesReveal))) KM('Reveal','Bridesmaids reveal');
+    if(yes(firstLook)) KM('First look','Yes');
+    const privateVows=/private/i.test(ceremonyImportant)||/private/i.test(vows);
+    if(yes(firstLook)&&privateVows) KM('First look','Private vows during the first look');
+    if(ceremonyImportant&&!none(ceremonyImportant)) KM('Ceremony','Most important — '+ceremonyImportant);
+    if(vows&&yes(vows)) KM('Ceremony',/not photographed|unplugged|without photo/i.test(vows)?'Personal vows (not photographed)':'Personal vows (both)');
+    const cType=checked('ceremony_type').filter(x=>!/^other$/i.test(x)), dur=answerAfter(lines,/^How long do you expect the ceremony/i);
+    const cBits=[cType.length?cType.join(' + ')+' ceremony':'',/outdoor/i.test(outdoor)?'outdoors':(/indoor/i.test(outdoor)?'indoors':''),dur&&!none(dur)?dur:''].filter(Boolean);
+    if(cBits.length) KM('Ceremony',cBits.join(' · '));
+    if(family&&!none(family)) KM('Family photos',family);
+    const famSit=answerAfter(lines,/^Are there any family situations/i);
+    if(famSit&&!none(famSit)) KM('Family note',famSit);
+    const expand=v=>v.replace(/\bMOG\b/g,"groom's mom").replace(/\bMOB\b/g,"bride's mom").replace(/\bFOG\b/g,"groom's dad").replace(/\bFOB\b/g,"bride's dad");
+    if(specialFamily&&!none(specialFamily)) expand(specialFamily).split(/,\s*(?:and\s+)?|\s+and\s+(?=(?:bride|groom))/i).map(clean).filter(Boolean).forEach(x=>KM('Family must-have',x));
+    if(familyMoments&&!none(familyMoments)) KM('Family must-have',familyMoments);
+    const poses=answerAfter(lines,/^Are there any poses/i);
+    if(poses&&!none(poses)) KM('Couple portraits',poses);
+    const expect=answerAfter(lines,/^What do you expect from us/i,16);
+    if(/shy|direction|pose/i.test(expect)) KM('Couple portraits','Give clear posing direction'+(/shy/i.test(expect)?' (they feel a bit shy on camera)':''));
+    if(/flatter|angle|double chin/i.test(expect)) KM('Couple portraits','Most flattering angles');
+    if(/show(ing)? us the pic|show us/i.test(expect)) KM('Photographers','Show them photos on camera during the day');
+    if(/shot list|inspiration/i.test(expect)) KM('Photographers','Guidance with inspiration and shot list');
+    if(/listen to/i.test(expect)) KM('Photographers','Listen to the bridal party and planner for guest photo requests');
+    const vision=answerAfter(lines,/^What are the 3 most important things for you that describe/i,12);
+    if(/just for (us|ourselves)|for ourselves|alone|take it all in/i.test(vision)) KM('Couple portraits','A few minutes alone together to take it all in');
+    const remember=answerAfter(lines,/^What are the 3 most important things you want to remember/i,8);
+    if(remember&&!none(remember)) KM('Remember most',remember);
+    const styles=checked('photo_styles');
+    if(styles.length) KM('Photo style',styles.join(' · '));
+    if(cocktailSetup&&!none(cocktailSetup)) KM('Cocktail',cocktailSetup);
+    const pyro=answerAfter(lines,/^Will there be pyrotechnics/i);
+    if(pyro&&!none(pyro)) KM('Reception',pyro);
+    if(surprises&&!none(surprises)&&!/will let you know|not at this time|nothing yet/i.test(surprises)) KM('Surprise',surprises);
+    const otherPh=answerAfter(lines,/^Will there be other photographers/i);
+    if(otherPh&&!none(otherPh)) KM('Other photographers',otherPh);
+    const vendors=answerAfter(lines,/^We love getting to know/i,12);
+    if(vendors&&!none(vendors)) KM('Vendors',vendors.replace(/\s*(Photography|Venues?|Wedding Planner|Planner|Hair and makeup|HMUA|DJ|Live music|Florist|Video(?:graphy)?)\s*:/gi,' · $1:').replace(/^\s*·\s*/,''));
+    const extras=checked('additional_services').filter(x=>!/^no$/i.test(x));
+    if(extras.length) data.coverage=clean((data.coverage||'')+' + '+extras.join(' + '));
     const cer=extractTime(ceremonyRaw), cock=extractTime(cocktailRaw), rec=extractTime(receptionRaw), hrs=coverageHours(coverage)||8;
     if(cer===null){
       const anchor=rec!==null?rec-120:(cock!==null?cock-60:null);
@@ -103,6 +153,7 @@
       let cursor=cer-120;
       if(/groom.*mom|mom.*groom/i.test(reveals)){T(cursor,'Groom Mom Reveal');cursor+=10;}
       if(/bride.*dad|dad.*bride/i.test(reveals)){T(cursor,'Bride Dad Reveal');cursor+=10;}
+      if(reveals&&yes(reveals)&&!/groom.*mom|mom.*groom|bride.*dad|dad.*bride/i.test(reveals)){T(cursor,'Family Reveal'+(unYes(reveals)?' — '+unYes(reveals):''));cursor+=10;}
       if(yes(bridesReveal)||(/reveal/i.test(bridesReveal)&&!no(bridesReveal))){T(cursor,'Bridesmaids / Friends Reveal');cursor+=10;}
       if(yes(firstLook)){
         T(cursor,/not photographed|unplugged|without photo/i.test(vows)?'First Look / then Private Vows (unplugged for photographers)':'First Look / Couple Moment');cursor+=10;
@@ -113,10 +164,11 @@
         T(cursor,'Wedding Party / Individual Group Photos');cursor+=25;
       }
       T(Math.min(cer-25,cursor),'Ceremony Prep / Freshen Up');
-      T(cer,'Ceremony'+(ceremonyRaw? ' ('+clean(ceremonyRaw.replace(timeRe,'').replace(/[@—-]+\s*$/,''))+')':''));
-      const familyTime=cer+20; T(familyTime,'Group Photo / Immediate Family Photos');
+      T(cer,'Ceremony'+(ceremonyRaw? ' ('+clean(ceremonyRaw.replace(timeRe,'').replace(/[\s,@—-]+$/,''))+')':''));
+      const durMin=+((String(answerAfter(lines,/^How long do you expect the ceremony/i)).match(/\d+/)||[30])[0]);const familyTime=cer+(durMin>0&&durMin<120?durMin:30); T(familyTime,'Family Photos');
+      if(yes(firstLook))T(familyTime+20,'Sunset Couple Portraits (check light)');
       if(cock!==null)T(cock,/enter|entrance/i.test(cocktailSetup)?'Cocktail Hour / Couple Entrance':'Cocktail Hour / Guest Candids');
-      if(rec!==null){if(rec-(cock||familyTime)>=25)T(rec-30,'Sunset / Golden Hour Couple Photos (optional)');T(rec,'Reception Begins');}
+      if(rec!==null){if(!yes(firstLook)&&rec-(cock||familyTime)>=25)T(rec-30,'Sunset / Golden Hour Couple Photos (optional)');T(rec,'Reception Begins');}
       T(end,'Photography Service Ends');
       data.timeline.sort((a,b)=>extractTime(a.time)-extractTime(b.time));
     }
@@ -136,12 +188,36 @@
     }
     return data;
   }
+  // Reads which options are ticked in checkbox questions by looking at the box left of each label.
+  const CHECK_GROUPS={photo_styles:['Tradicional','Traditional','Romantic','Candid','Editorial','Documentary','Model','Blurry',"What's trending!","What's trending"],ceremony_type:['Symbolical','Symbolic','Civil','Christian','Catholic','Hindu','Maya','Chinese','Jewish','Other'],additional_services:['No','Extra photographer','Extra hour','Welcome party/Rehearshal','Welcome party/Rehearsal','Drone','Other']};
+  const CHECK_TITLES={photo_styles:/What photo styles/i,ceremony_type:/Ceremony type or multiple/i,additional_services:/Do you have any additional services/i};
+  async function detectChecks(doc){
+    const out={photo_styles:[],ceremony_type:[],additional_services:[]};
+    for(let n=1;n<=doc.numPages;n++){
+      const pg=await doc.getPage(n),tc=await pg.getTextContent();
+      let group=null,cands=[];
+      tc.items.forEach(it=>{const t=clean(it.str);if(!t)return;for(const g in CHECK_TITLES)if(CHECK_TITLES[g].test(t)){group=g;return}
+        if(group&&CHECK_GROUPS[group].some(o=>o.toLowerCase()===t.toLowerCase()))cands.push({group,label:t,it});
+        else if(group&&t.length>3&&!/^Enter your answer$/i.test(t)&&/\?$/.test(t))group=null;});
+      if(!cands.length)continue;
+      const scale=2,vp=pg.getViewport({scale}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+      const ctx=cv.getContext('2d',{willReadFrequently:true});await pg.render({canvasContext:ctx,viewport:vp}).promise;
+      const byGroup={};
+      cands.forEach(c=>{const [x,y]=vp.convertToViewportPoint(c.it.transform[4],c.it.transform[5]);const fs=Math.hypot(c.it.transform[2],c.it.transform[3])||10;
+        const cy=y-fs*0.35*scale,L=Math.round(x-14*scale),W=Math.round(5*scale),T=Math.round(cy-3*scale),H=Math.round(6*scale);
+        if(L<0||T<0)return;const d=ctx.getImageData(L,T,W,H).data;let dark=0;for(let i=0;i<d.length;i+=4)if((d[i]+d[i+1]+d[i+2])/3<140)dark++;
+        (byGroup[c.group]??=[]).push({label:c.label,r:dark/(W*H)});});
+      for(const g in byGroup){const arr=byGroup[g];if(arr.length<2)continue;const base=Math.min(...arr.map(a=>a.r));
+        arr.forEach(a=>{if(a.r>base+0.07)out[g].push(a.label.replace(/^Symbolical$/,'Symbolic').replace(/^Tradicional$/,'Traditional').replace(/!$/,''))});}
+    }
+    return Object.keys(out).filter(g=>out[g].length).map(g=>'\nJR_CHECKED '+g+': '+[...new Set(out[g])].join(' | ')).join('');
+  }
   window.JRSmartParser={parse};
   window.JRSmartParserReadPdf=window.readPdf=async function(e){
     const f=e.target.files[0];if(!f)return;const st=document.getElementById('importStatus');st.textContent='Reading '+f.name+'…';
     try{if(!window.pdfjsLib)throw Error('PDF reader unavailable');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const doc=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,pages=[];
       for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),tc=await pg.getTextContent(),rows={};tc.items.forEach(it=>{const y=Math.round(it.transform[5]/3)*3;(rows[y]??=[]).push(it)});pages.push(Object.keys(rows).map(Number).sort((a,b)=>b-a).map(y=>rows[y].sort((a,b)=>a.transform[4]-b.transform[4]).map(i=>i.str).join(' ')).join('\n'));}
-      const text=pages.join('\n');document.getElementById('importText').value=text;const d=parse(text);const found=['couple_name','wedding_date','location','coverage','guests','coordinator','videographer','ceremony','cocktail','reception','wedding_party'].filter(k=>d[k]).length;st.textContent=`PDF analyzed · ${found} essential fields · ${d.key_requests.length} key requests · ${d.timeline.length} timeline events. Click Generate timeline draft.`;
+      let text=pages.join('\n');try{text+=await detectChecks(doc)}catch(ce){console.warn('Checkbox detection skipped',ce)}document.getElementById('importText').value=text;const d=parse(text);const found=['couple_name','wedding_date','location','coverage','guests','coordinator','videographer','ceremony','cocktail','reception','wedding_party'].filter(k=>d[k]).length;st.textContent=`PDF analyzed · ${found} essential fields · ${d.key_requests.length} key requests · ${d.timeline.length} timeline events. Click Generate timeline draft.`;
     }catch(err){console.error(err);st.textContent='Could not read this PDF automatically. Paste the questionnaire text below.';}
   };
   // Bind the PDF input directly after every editor render. This avoids the legacy inline reader.
