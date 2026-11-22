@@ -8,7 +8,7 @@
     const re=label instanceof RegExp?label:new RegExp('^'+label,'i');
     for(let i=0;i<lines.length;i++) if(re.test(lines[i])){
       const a=[];let start=i+1;
-      if(!/[?:]\s*$/.test(lines[i])){for(let k=i+1;k<lines.length&&k<i+4;k++){if(/\?\s*$/.test(clean(lines[k]))){start=k+1;break}}}
+      if(!/[?:]\s*$/.test(lines[i])){for(let k=i+1;k<lines.length&&k<i+4;k++){const lk=clean(lines[k]);if(qStarts.test(lk))break;if(/\?\s*$/.test(lk)){start=k+1;break}}}
       for(let j=start;j<lines.length&&j<start+(maxLines||8);j++){
         const v=clean(lines[j]); if(!v)continue;
         if(qStarts.test(v))break;
