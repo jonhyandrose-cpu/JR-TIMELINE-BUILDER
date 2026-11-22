@@ -308,16 +308,17 @@ const firstNames=c=>clean(c).split(/\s*(?:&|and|y|\+)\s*/i).map(s=>s.split(' ')[
 function templates(d,L,url){
   const names=firstNames(d.couple_name);
   const ready={subject:'Your wedding day timeline · '+clean(d.couple_name),
-    body:'Hi '+names+',\n\nYour wedding day timeline is ready! Everything we planned together lives in one place, and it stays up to date whenever something changes.\n\nTake a look when you have a moment. At the end of the page you can tap "Looks perfect" or let us know if anything needs a tweak. Feel free to share it with your planner, family and wedding party.'+'\n\nWith love,\nJonhy & Rose'};
+    body:'Hi '+names+',\n\nYour wedding day timeline is ready! Everything we planned together lives in one place, and it stays up to date whenever something changes.\n\nTake a look when you have a moment. At the end of the page you can tap "Looks perfect" or let us know if anything needs a tweak. Feel free to share it with your planner, family and wedding party.'+'\n\nLooking forward to your day,\nJonhy & Rose'};
   ready.lightPara=L&&L.reason==='ok'?'Good news about the light: your ceremony ends at '+fmtMin(L.cerEnd)+' and sunset is at '+fmtMin(L.sunset)+', so we\'ll have beautiful natural light for your photos.':'';
   const left=L&&L.reason==='ok'?Math.max(0,L.left):null;
   const light={subject:'A note about your wedding light · '+clean(d.couple_name),
-    body:'Hi '+names+',\n\nWe went through your timeline with a lot of care and wanted to share something important about the light.\n\n'+(left!=null?'Your ceremony is at '+fmtMin(L.cerStart)+' and the sun sets at '+fmtMin(L.sunset)+'. That leaves about '+left+' minutes of natural light after the ceremony, and we need around '+L.need+' minutes for '+(L.firstLook?'your family photos and sunset portraits':'your family, wedding party and couple portraits')+'.':'The time between your ceremony and sunset is very short for all the photos we have planned.')+'\n\nA few options we\'d love you to consider:\n\n• '+(L&&L.firstLook?'Adding a little more time after the ceremony for portraits.':'A first look before the ceremony, so we can do your portraits and wedding party photos in beautiful light.')+'\n• Moving the ceremony a bit earlier, so every photo happens in natural light.\n• Keeping the current plan, knowing that some photos after sunset will use flash.\n\nYou can see your wedding light and reply right from your timeline. We\'re happy to talk it through anytime.\n\nWith love,\nJonhy & Rose'};
+    body:'Hi '+names+',\n\nWe went through your timeline with a lot of care and wanted to share something important about the light.\n\n'+(left!=null?'Your ceremony is at '+fmtMin(L.cerStart)+' and the sun sets at '+fmtMin(L.sunset)+'. That leaves about '+left+' minutes of natural light after the ceremony, and we need around '+L.need+' minutes for '+(L.firstLook?'your family photos and sunset portraits':'your family, wedding party and couple portraits')+'.':'The time between your ceremony and sunset is very short for all the photos we have planned.')+'\n\nA few options we\'d love you to consider:\n\n• '+(L&&L.firstLook?'Adding a little more time after the ceremony for portraits.':'A first look before the ceremony, so we can do your portraits and wedding party photos in beautiful light.')+'\n• Moving the ceremony a bit earlier, so every photo happens in natural light.\n• Keeping the current plan, knowing that some photos after sunset will use flash.\n\nYou can see your wedding light and reply right from your timeline. We\'re happy to talk it through anytime.\n\nLooking forward to your day,\nJonhy & Rose'};
   return {ready,light};
 }
-function emailHTML(d,subjectBody,url){
+function emailHTML(d,subjectBody,url,pay,payLabel){
   const paras=E(subjectBody).split(/\n\n+/).map(p=>p.replace(/\n/g,'<br>'));
-  const sign=paras.length&&/^With love/i.test(paras[paras.length-1])?paras.pop():'With love,<br>Jonhy &amp; Rose';
+  let signTop='Looking forward to your day,';
+  if(paras.length&&/Jonhy &amp; Rose\s*$/i.test(paras[paras.length-1])){const last=paras.pop();signTop=last.split('<br>')[0].replace(/Jonhy &amp; Rose\s*$/i,'').trim()||signTop}
   const font='Helvetica,Arial,sans-serif',serif="'Cormorant Garamond',Georgia,'Times New Roman',serif";
   return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede7"><tr><td align="center" style="padding:28px 12px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fbfaf7;border:1px solid #e2ddd3">'+
   '<tr><td align="center" style="padding:40px 30px 10px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="width:54px;height:54px;background:#000;color:#fff;font-family:Georgia,serif;font-size:22px">JR</td></tr></table></td></tr>'+
@@ -327,7 +328,9 @@ function emailHTML(d,subjectBody,url){
   '<tr><td align="center" style="padding:24px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:44px;height:1px;background:#cfc5b6;font-size:0;line-height:0">&nbsp;</td></tr></table></td></tr>'+
   paras.map(p=>'<tr><td style="padding:0 36px 16px;font-family:'+font+';font-size:15px;line-height:25px;color:#3a3631">'+p+'</td></tr>').join('')+
   '<tr><td align="center" style="padding:12px 30px 30px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#191816;border-radius:999px"><a href="'+E(url)+'" style="display:inline-block;padding:15px 34px;font-family:'+font+';font-size:12px;letter-spacing:2px;color:#fff;text-decoration:none">VIEW YOUR TIMELINE</a></td></tr></table></td></tr>'+
-  '<tr><td align="center" style="padding:0 30px 40px;font-family:'+serif+';font-size:21px;font-style:italic;color:#5a524a">'+sign+'</td></tr>'+
+  (pay?'<tr><td align="center" style="padding:0 30px 34px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#ffffff;border:1px solid #191816;border-radius:999px"><a href="'+E(pay)+'" style="display:inline-block;padding:14px 30px;font-family:'+font+';font-size:12px;letter-spacing:2px;color:#191816;text-decoration:none">'+E((payLabel||'Make a payment').toUpperCase())+'</a></td></tr></table></td></tr>':'')+
+  '<tr><td align="center" style="padding:0 30px 6px;font-family:'+serif+';font-size:20px;font-style:italic;color:#5a524a">'+signTop+'</td></tr>'+
+  '<tr><td align="center" style="padding:0 30px 40px;font-family:'+font+';font-size:11px;letter-spacing:4px;color:#24231f">JONHY &amp; ROSE</td></tr>'+
   '<tr><td align="center" style="padding:16px 30px;border-top:1px solid #e8e3db;font-family:'+font+';font-size:10px;letter-spacing:2px;color:#9c8d7b">JONHY &amp; ROSE PHOTOGRAPHY STUDIO · CANCÚN · RIVIERA MAYA</td></tr></table></td></tr></table>';
 }
 async function openSend(){
@@ -342,25 +345,28 @@ async function openSend(){
     '<div class="jrX-tabs"><button data-t="ready">Timeline ready</button><button data-t="light">Wedding light</button></div>'+
     '<div id="jrXHint" class="muted" style="font-size:12.5px"></div>'+
     '<label id="jrXLightWrap" style="display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;font-size:14px;color:#191816;font-weight:500;cursor:pointer"><input type="checkbox" id="jrXLightPara" checked style="width:20px;height:20px;accent-color:#191816"> Include the light message</label>'+
+    '<label>Payment link (optional)</label><input id="jrXPay" type="url" placeholder="https://buy.stripe.com/…">'+
+    '<label>Payment button text</label><input id="jrXPayLabel" value="Make your final payment">'+
     '<label>Subject</label><input id="jrXSubj"><label>Message</label><textarea id="jrXBody" rows="14"></textarea>'+
     '<div class="muted" style="font-size:12px;margin-top:8px">The link to their timeline goes on the "View your timeline" button: '+E(url)+'</div>'+
     '<div class="jrX-share" style="margin-top:16px"><button class="main" data-x="email">Copy email with design</button><a data-x="wa" target="_blank" rel="noopener" href="#">WhatsApp</a><a data-x="mail" href="#">Open in Mail</a><button data-x="text">Copy text</button><button data-x="close">Close</button></div></div>';
   document.body.appendChild(m);
   const subj=m.querySelector('#jrXSubj'),bod=m.querySelector('#jrXBody'),hint=m.querySelector('#jrXHint');
   const lp=m.querySelector('#jrXLightPara'),lw=m.querySelector('#jrXLightWrap');
-  const withPara=(body,on)=>{const p=T.ready.lightPara;if(!p)return body;const clean2=body.replace('\n\n'+p,'');return on?clean2.replace(/\n\nWith love,/,'\n\n'+p+'\n\nWith love,'):clean2};
+  const withPara=(body,on)=>{const p=T.ready.lightPara;if(!p)return body;const clean2=body.replace('\n\n'+p,'');return on?clean2.replace(/\n\nLooking forward to your day,/,'\n\n'+p+'\n\nLooking forward to your day,'):clean2};
   lp.onchange=()=>{if(cur==='ready'){bod.value=withPara(bod.value,lp.checked);upd()}};
   const setT=t=>{cur=t;subj.value=T[t].subject;bod.value=t==='ready'?withPara(T.ready.body,lp.checked):T[t].body;lw.style.display=(t==='ready'&&T.ready.lightPara)?'flex':'none';m.querySelectorAll('.jrX-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
     hint.textContent=t==='light'?'Para cuando hay un tema con el sol. Edita lo que quieras antes de enviar.':(L&&L.status&&L.status!=='ok'?'Ojo: la revisión de luz marca que falta luz. Considera la plantilla "Wedding light".':'La luz alcanza: esta es la plantilla recomendada.');upd()};
-  const upd=()=>{const plain=bod.value+'\n\n'+url;m.querySelector('[data-x="wa"]').href='https://wa.me/?text='+encodeURIComponent(plain);m.querySelector('[data-x="mail"]').href='mailto:?subject='+encodeURIComponent(subj.value)+'&body='+encodeURIComponent(plain)};
-  subj.oninput=upd;bod.oninput=upd;
+  const payEl=m.querySelector('#jrXPay'),payLbl=m.querySelector('#jrXPayLabel');const payTxt=()=>clean(payEl.value)?'\n\n'+(clean(payLbl.value)||'Make a payment')+': '+clean(payEl.value):'';
+  const upd=()=>{const plain=bod.value+'\n\nView your timeline: '+url+payTxt();m.querySelector('[data-x="wa"]').href='https://wa.me/?text='+encodeURIComponent(plain);m.querySelector('[data-x="mail"]').href='mailto:?subject='+encodeURIComponent(subj.value)+'&body='+encodeURIComponent(plain)};
+  subj.oninput=upd;bod.oninput=upd;payEl.oninput=upd;payLbl.oninput=upd;
   m.querySelectorAll('.jrX-tabs button').forEach(b=>b.onclick=()=>setT(b.dataset.t));
   m.addEventListener('click',async e=>{
     if(e.target===m){m.remove();return}
     const a=e.target.closest('[data-x]');if(!a)return;const k=a.dataset.x;
     if(k==='close'){m.remove();return}
-    if(k==='text'){e.preventDefault();try{await navigator.clipboard.writeText(bod.value+'\n\n'+url);toast('Message copied')}catch(_){prompt('Copy:',bod.value+'\n\n'+url)}return}
-    if(k==='email'){e.preventDefault();const html=emailHTML(d,bod.value,url),plain=bod.value+'\n\n'+url;
+    if(k==='text'){e.preventDefault();const t=bod.value+'\n\nView your timeline: '+url+payTxt();try{await navigator.clipboard.writeText(t);toast('Message copied')}catch(_){prompt('Copy:',t)}return}
+    if(k==='email'){e.preventDefault();const html=emailHTML(d,bod.value,url,clean(payEl.value),clean(payLbl.value)),plain=bod.value+'\n\nView your timeline: '+url+payTxt();
       try{if(window.ClipboardItem&&navigator.clipboard?.write){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([plain],{type:'text/plain'})})]);toast('Email copied · paste it in Gmail')}
           else{await navigator.clipboard.writeText(plain);toast('Text copied (design not supported here)')}}catch(_){prompt('Copy:',plain)}
       return}
