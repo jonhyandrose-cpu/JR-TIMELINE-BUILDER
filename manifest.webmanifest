@@ -7,8 +7,8 @@
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "/ChatGPT%20Image%2017%20sept%202026%2C%2005_30_08%20p.m..png",
-      "sizes": "any",
+      "src": "/app-icon-512.png?v=14",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
