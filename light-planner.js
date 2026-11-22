@@ -10,6 +10,24 @@
   function knownVenue(q){return knownVenues.find(v=>v.re.test(q))||null;}
   function fallbackZone(name){const s=name.toLowerCase();if(/quintana roo|cancun|cancún|playa mujeres|riviera maya|tulum|cozumel/.test(s))return'America/Cancun';if(/nayarit|punta mita|bahia mita|bahía mita|bahia de banderas|bahía de banderas|bucerias|bucerías/.test(s))return'America/Bahia_Banderas';if(/puerto vallarta|jalisco/.test(s))return'America/Mexico_City';if(/los cabos|cabo san lucas|san jose del cabo|san josé del cabo|baja california sur/.test(s))return'America/Mazatlan';if(/dominican|punta cana|la romana/.test(s))return'America/Santo_Domingo';if(/jamaica|montego bay/.test(s))return'America/Jamaica';return Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';}
   async function nominatim(q){const url='https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&q='+encodeURIComponent(q);const r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok)return null;const a=await r.json();return a.length?{lat:+a[0].lat,lng:+a[0].lon,name:a[0].display_name}:null;}
+  // If the exact venue is not on the map, use its area: sunset changes only a minute or two within these areas.
+  const AREAS=[
+    [/playa mujeres|costa mujeres/i,21.25,-86.80,'America/Cancun','Playa Mujeres area'],
+    [/isla mujeres/i,21.23,-86.73,'America/Cancun','Isla Mujeres'],
+    [/holbox/i,21.52,-87.38,'America/Cancun','Holbox'],
+    [/puerto morelos/i,20.85,-86.88,'America/Cancun','Puerto Morelos'],
+    [/cozumel/i,20.42,-86.92,'America/Cancun','Cozumel'],
+    [/akumal/i,20.40,-87.32,'America/Cancun','Akumal'],
+    [/tulum/i,20.21,-87.46,'America/Cancun','Tulum'],
+    [/playa del carmen|playacar/i,20.63,-87.07,'America/Cancun','Playa del Carmen'],
+    [/canc[uú]n/i,21.13,-86.83,'America/Cancun','Cancún'],
+    [/riviera maya/i,20.63,-87.07,'America/Cancun','Riviera Maya'],
+    [/quintana roo/i,21.13,-86.83,'America/Cancun','Quintana Roo'],
+    [/punta mita|nayarit|bah[ií]a de banderas|bucer[ií]as|sayulita/i,20.77,-105.52,'America/Bahia_Banderas','Riviera Nayarit'],
+    [/puerto vallarta|vallarta|jalisco/i,20.65,-105.23,'America/Mexico_City','Puerto Vallarta'],
+    [/los cabos|cabo san lucas|san jos[eé] del cabo|baja california sur/i,22.89,-109.91,'America/Mazatlan','Los Cabos']
+  ];
+  function areaFallback(q){const a=AREAS.find(r=>r[0].test(q||''));return a?{lat:a[1],lng:a[2],zone:a[3],name:a[4]}:null;}
   async function geocode(q){
     const known=knownVenue(q);if(known)return {...known,source:'venue registry'};
     const queries=[q];
@@ -17,6 +35,7 @@
     if(hotelName&&hotelName!==q)queries.push(hotelName);
     if(hotelName)queries.push(hotelName+', Mexico');
     for(const query of [...new Set(queries)]){try{const g=await nominatim(query);if(g)return {...g,source:'map lookup'};}catch(e){}}
+    const area=areaFallback(q);if(area)return {...area,source:'area estimate'};
     throw Error('Venue not found');
   }
   async function timezone(lat,lng,name,preferred){if(preferred)return preferred;try{const r=await fetch(`https://timeapi.io/api/TimeZone/coordinate?latitude=${lat}&longitude=${lng}`);if(r.ok){const z=await r.json();return z.timeZone||z.timeZoneId||z.ianaTimeZone||fallbackZone(name);}}catch(e){}return fallbackZone(name);}
