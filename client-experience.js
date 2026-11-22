@@ -85,10 +85,20 @@ const css=`
 .jrX-sheet input,.jrX-sheet textarea{width:100%;border:1px solid #ded8cf;border-radius:10px;padding:11px 12px;font:16px/1.55 -apple-system,Arial,sans-serif;background:#fff}
 .jrX-sheet label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9a8068;margin:12px 0 6px;font-weight:600}
 .jrX-has-light .jrPreviewLightSlot,.jrX-has-light .jrPublicLight:not(.jrX-light){display:none!important}
+.jrX-ed{position:relative}
+.jrX-x{position:absolute;top:10px;right:0;z-index:3;min-width:34px;height:34px;padding:0 10px;border-radius:999px;border:1px solid #ded8cf;background:#fff;color:#756f68;font:600 12px -apple-system,Arial,sans-serif;cursor:pointer}
+.jrX-lmWrap .jrX-x{top:-4px}
+.jrX-off>*:not(.jrX-x){opacity:.28}
+.jrX-off{background:repeating-linear-gradient(135deg,transparent 0 10px,rgba(154,128,104,.06) 10px 20px)}
+.jrX-edit{outline:none;border-radius:6px;transition:background .2s;cursor:text}
+.jrX-edit:hover{background:rgba(227,191,116,.12)}
+.jrX-edit:focus{background:#fff8ea;box-shadow:0 0 0 2px #e3bf74}
+.jrX-editHint{position:sticky;top:0;z-index:5;background:#f8efe2;color:#7a5a2e;font:13px/1.45 -apple-system,Arial,sans-serif;padding:10px 16px}
 .jrX-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#191816;color:#fff;padding:11px 18px;border-radius:999px;font:13px -apple-system,Arial,sans-serif;z-index:300}
 @media(max-width:520px){.jrX-stats b{font-size:21px}.jrX-share{grid-template-columns:1fr 1fr}}
 `;
 const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+const isHidden=(x,k)=>((x&&x.client_view&&Array.isArray(x.client_view.hidden))?x.client_view.hidden:[]).includes(k)||(k==='light_message'&&x&&x.show_light_message===false);
 function toast(t){const e=document.createElement('div');e.className='jrX-toast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2600)}
 
 /* ---------- light bar (client) ---------- */
@@ -109,10 +119,12 @@ function lightBar(L){
 }
 function clientLightCopy(L,x){
   if(L.reason!=='ok')return '';
-  if(x.show_light_message===false)return '';
-  if(L.status==='ok')return '<p class="jrX-msg">Your day is beautifully timed with the light. Your ceremony ends at '+fmtMin(L.cerEnd)+', leaving about '+L.left+' minutes of natural light before sunset at '+fmtMin(L.sunset)+(L.firstLook?', and your first look gives us time for portraits earlier in the day':'')+'.</p>';
+  if(isHidden(x,'light_message')&&!x.__preview)return '';
+  const custom=clean(x.light_note);
+  if(L.status==='ok'&&custom)return '<p class="jrX-msg jrX-lm">'+E(custom)+'</p>';
+  if(L.status==='ok')return '<p class="jrX-msg jrX-lm">Your day is beautifully timed with the light. Your ceremony ends at '+fmtMin(L.cerEnd)+', leaving about '+L.left+' minutes of natural light before sunset at '+fmtMin(L.sunset)+(L.firstLook?', and your first look gives us time for portraits earlier in the day':'')+'.</p>';
   const note=clean(x.light_note)||'Your ceremony ends at '+fmtMin(L.cerEnd)+' and the sun sets at '+fmtMin(L.sunset)+', which leaves about '+Math.max(0,L.left)+' minutes of natural light for '+(L.firstLook?'your family photos and sunset portraits':'your family, wedding party and couple portraits')+'. We\'d love to talk about '+(L.firstLook?'a little more time after the ceremony':'a first look or an earlier ceremony')+' so every photo glows.';
-  return '<div class="jrX-alert"><div class="eyebrow" style="margin-bottom:8px">A note about your light</div><p class="jrX-msg" style="margin:0">'+E(note)+'</p><div class="jrX-btns" data-jrx-light><button class="jrX-btn" data-resp="light_accepted">Sounds good</button><button class="jrX-btn o" data-resp="light_discuss">Let\'s talk</button></div></div>';
+  return '<div class="jrX-alert"><div class="eyebrow" style="margin-bottom:8px">A note about your light</div><p class="jrX-msg jrX-lm" style="margin:0">'+E(note)+'</p><div class="jrX-btns" data-jrx-light><button class="jrX-btn" data-resp="light_accepted">Sounds good</button><button class="jrX-btn o" data-resp="light_discuss">Let\'s talk</button></div></div>';
 }
 
 /* ---------- client page ---------- */
@@ -157,7 +169,7 @@ async function enhanceClient(card,isPreview){
     x={couple_name:v('couple_name'),wedding_date:v('wedding_date'),location:v('location'),ceremony:v('ceremony'),
        timeline:Array.from(document.querySelectorAll('#rows .timelineRow')).map(r=>({time:r.querySelector('input')?.value||'',item:r.querySelector('textarea')?.value||''})),
        key_requests:(document.getElementById('requests')?.value||'').split('\n').filter(Boolean),
-       show_light_message:document.getElementById('jrXShowLight')?document.getElementById('jrXShowLight').checked:(S()?.show_light_message!==false),studio_note:document.getElementById('jrXStudioNote')?.value||S()?.studio_note||'',light_note:document.getElementById('jrXLightNote')?.value||S()?.light_note||''};
+       __preview:true,client_view:S()?.client_view||{},show_light_message:S()?.show_light_message!==false,studio_note:document.getElementById('jrXStudioNote')?.value||S()?.studio_note||'',light_note:document.getElementById('jrXLightNote')?.value||S()?.light_note||''};
   }else{
     slug=new URLSearchParams(location.search).get('timeline');
     if(!slug){const m=location.pathname.match(/^\/timelines\/([^/]+)/i);if(m){try{slug=(typeof fixedClientRoutes!=='undefined'&&fixedClientRoutes[m[1].toLowerCase()])||null}catch(e){slug=null}}}
@@ -166,7 +178,7 @@ async function enhanceClient(card,isPreview){
   }
   const url=isPreview?'(client link)':location.href.split('#')[0];
   const head=card.querySelector('.publicHead');
-  if(head&&clean(x.studio_note))head.insertAdjacentHTML('afterend','<section class="publicSection"><div class="eyebrow" style="margin-bottom:10px">A note from us</div><p class="jrX-note">'+E(x.studio_note)+'</p><p class="jrX-sign">— Jonhy &amp; Rose</p></section>');
+  if(head&&(clean(x.studio_note)||(isPreview&&hasCol('studio_note'))))head.insertAdjacentHTML('afterend','<section class="publicSection jrX-noteSec"><div class="eyebrow" style="margin-bottom:10px">A note from us</div><p class="jrX-note">'+E(x.studio_note)+'</p><p class="jrX-sign">— Jonhy &amp; Rose</p></section>');
   // light: replace the plain light card with the bar experience
   const L=await withLight(x);
   const oldLight=card.querySelectorAll('.jrPublicLight,.jrPreviewLightSlot');
@@ -191,8 +203,55 @@ async function enhanceClient(card,isPreview){
     const rb=e.target.closest('[data-resp]');
     if(rb){const box=rb.closest('.jrX-btns');box.innerHTML='<div class="muted" style="padding:10px 0">Sending…</div>';await respond(slug,rb.dataset.resp,'',box,isPreview)}
   });
+  if(!isPreview){
+    const byKey=k=>({note:card.querySelector('.jrX-noteSec'),light:card.querySelector('.jrX-light'),essential:secBy(card,/Essential Information/i),key_moments:secBy(card,/Key Moments/i),timeline:secBy(card,/Photography Timeline/i)})[k];
+    ['note','light','essential','key_moments','timeline'].forEach(k=>{if(isHidden(x,k)){const n=byKey(k);if(n)n.remove()}});
+  }
+  if(isPreview)setupPreviewEdit(card,x);
   if(!isPreview&&x.couple_name)document.title=x.couple_name+' · The Wedding Day';
 }
+function secBy(card,re){return [...card.querySelectorAll('.publicSection')].find(s=>re.test(s.querySelector('h2')?.textContent||''))}
+
+/* ---------- preview edit mode: tap to edit, ✕ to hide ---------- */
+function hiddenList(){const st=S();if(!st)return [];st.client_view=st.client_view&&typeof st.client_view==='object'?st.client_view:{};if(!Array.isArray(st.client_view.hidden))st.client_view.hidden=[];return st.client_view.hidden}
+function setHidden(k,on){const h=hiddenList();const i=h.indexOf(k);if(on&&i<0)h.push(k);if(!on&&i>=0)h.splice(i,1);if(k==='light_message'){const st=S();if(st)st.show_light_message=!on;const cb=document.getElementById('jrXShowLight');if(cb)cb.checked=!on}}
+function fire(el){if(!el)return;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}
+function setupPreviewEdit(card,x){
+  if(card.dataset.jrxEdit)return;card.dataset.jrxEdit='1';
+  const canSave=hasCol('client_view');
+  const bar=document.querySelector('.jrDraftOverlay .jrDraftBar');
+  if(bar&&!document.querySelector('.jrX-editHint'))bar.insertAdjacentHTML('afterend','<div class="jrX-editHint">Edit mode · tap any text to edit it · ✕ hides it from the couple · changes go to your editor; tap <b>Save Online</b> to publish'+(canSave?'':' · hiding sections saves once the database update is approved')+'</div>');
+  const sections={note:card.querySelector('.jrX-noteSec'),light:card.querySelector('.jrX-light'),essential:secBy(card,/Essential Information/i),key_moments:secBy(card,/Key Moments/i),timeline:secBy(card,/Photography Timeline/i)};
+  const hidden=hiddenList();
+  Object.entries(sections).forEach(([k,sec])=>{if(!sec)return;sec.classList.add('jrX-ed');
+    const b=document.createElement('button');b.type='button';b.className='jrX-x';b.setAttribute('aria-label','Hide section');
+    const paint=()=>{const off=hiddenList().includes(k);sec.classList.toggle('jrX-off',off);b.textContent=off?'Show':'✕'};
+    b.onclick=e=>{e.stopPropagation();setHidden(k,!hiddenList().includes(k));paint()};sec.prepend(b);paint();});
+  // light message: its own ✕ and editable text
+  const lm=card.querySelector('.jrX-lm');
+  if(lm){const w=document.createElement('div');w.className='jrX-ed jrX-lmWrap';lm.replaceWith(w);w.appendChild(lm);
+    const b=document.createElement('button');b.type='button';b.className='jrX-x';const paint=()=>{const off=hiddenList().includes('light_message');w.classList.toggle('jrX-off',off);b.textContent=off?'Show':'✕'};
+    b.onclick=e=>{e.stopPropagation();setHidden('light_message',!hiddenList().includes('light_message'));paint()};w.prepend(b);paint();
+    editable(lm,v=>{const st=S();if(st)st.light_note=v;const t=document.getElementById('jrXLightNote');if(t){t.value=v;fire(t)}});}
+  const note=card.querySelector('.jrX-note');
+  if(note){if(!clean(note.textContent))note.textContent='Write a personal note…';editable(note,v=>{if(v==='Write a personal note…')return;const st=S();if(st)st.studio_note=v;const t=document.getElementById('jrXStudioNote');if(t){t.value=v;fire(t)}})}
+  const h1=card.querySelector('.publicHead h1');if(h1)editable(h1,v=>{const f=document.getElementById('f_couple_name');if(f){f.value=v;fire(f)}});
+  // essential info values
+  let labelMap={};try{if(typeof labels!=='undefined')Object.entries(labels).forEach(([k,l])=>labelMap[l.toLowerCase()]=k)}catch(e){}
+  (sections.essential?.querySelectorAll('.infoItem')||[]).forEach(it=>{const k=labelMap[(it.querySelector('small')?.textContent||'').toLowerCase()];const v=it.querySelector('div');if(k&&v)editable(v,val=>{const f=document.getElementById('f_'+k);if(f){f.value=val;fire(f)}})});
+  // key moments: each line maps to a non-empty line of the editor box
+  const kmLis=[...(sections.key_moments?.querySelectorAll('li')||[])];
+  kmLis.forEach((li,i)=>editable(li,val=>{const ta=document.getElementById('requests');if(!ta)return;const lines=ta.value.split('\n').filter(l=>l.trim());lines[i]=val;ta.value=lines.filter(l=>l.trim()).join('\n');fire(ta)}));
+  // timeline rows map 1:1 to editor rows
+  const edRows=[...document.querySelectorAll('#rows .timelineRow')];
+  [...(sections.timeline?.querySelectorAll('.publicRow')||[])].forEach((r,i)=>{const er=edRows[i];if(!er)return;
+    const t=r.querySelector('.publicTime'),it=r.querySelector('.jrEventTitle')||r.querySelector('.publicItem');
+    if(t)editable(t,val=>{const inp=er.querySelector('input');if(inp){inp.value=val;fire(inp)}});
+    if(it)editable(it,val=>{const ta=er.querySelector('textarea');if(ta){const rest=ta.value.split(/\r?\n/).slice(1);ta.value=[val,...rest].join('\n');fire(ta)}});});
+}
+function editable(el,onSave){el.contentEditable='true';el.spellcheck=true;el.classList.add('jrX-edit');
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&el.tagName!=='P'){e.preventDefault();el.blur()}});
+  el.addEventListener('blur',()=>{const v=clean(el.innerText);onSave(v)});}
 
 /* ---------- editor: light check + notes + Send to couple ---------- */
 let editorTimer=null,lastLight=null;
@@ -238,8 +297,8 @@ function setupEditor(){
   if(hasCol('show_light_message')){
     const t=document.createElement('label');t.style.cssText='display:flex;gap:10px;align-items:center;margin:-14px 0 26px;font-size:14px;cursor:pointer';
     t.innerHTML='<input type="checkbox" id="jrXShowLight" style="width:20px;height:20px;accent-color:#191816"> Show the light message to the couple';
-    check.insertAdjacentElement('afterend',t);const cb=t.querySelector('input');cb.checked=S()?.show_light_message!==false;
-    cb.onchange=()=>{const st=S();if(st)st.show_light_message=cb.checked};
+    check.insertAdjacentElement('afterend',t);const cb=t.querySelector('input');cb.checked=!isHidden(S(),'light_message');
+    cb.onchange=()=>setHidden('light_message',!cb.checked);
   }
   runCheck();
 }
@@ -328,7 +387,7 @@ if(typeof save==='function'&&!window.__jrxSave){
   window.save=async function(){
     const st=S();if(hasCol('studio_note')&&st){
       const origFetch=window.fetch;
-      window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf(API)===0&&o&&(o.method==='POST'||o.method==='PATCH')&&o.body){try{const b=JSON.parse(o.body);b.studio_note=st.studio_note||null;b.light_note=st.light_note||null;if(hasCol('show_light_message'))b.show_light_message=st.show_light_message!==false;o={...o,body:JSON.stringify(b)}}catch(e){}}return origFetch.call(this,u,o)};
+      window.fetch=function(u,o){if(typeof u==='string'&&u.indexOf(API)===0&&o&&(o.method==='POST'||o.method==='PATCH')&&o.body){try{const b=JSON.parse(o.body);b.studio_note=st.studio_note||null;b.light_note=st.light_note||null;if(hasCol('show_light_message'))b.show_light_message=st.show_light_message!==false;if(hasCol('client_view'))b.client_view=st.client_view||{};o={...o,body:JSON.stringify(b)}}catch(e){}}return origFetch.call(this,u,o)};
       try{return await orig.apply(this,arguments)}finally{window.fetch=origFetch}
     }
     return orig.apply(this,arguments);
