@@ -35,6 +35,7 @@ body:has(#app .sd){background:#fff}body:has(#app .sd) #jrHomeLink{display:none!i
 .sd .sdChip{flex:0 0 auto;font-size:13px;padding:7px 13px;border-radius:999px;border:.5px solid #e2e2e2;color:var(--g);white-space:nowrap}
 .sd .sdChip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .sdMonth{display:flex;align-items:center;gap:12px;font-size:12px;letter-spacing:.14em;color:var(--g);margin:26px 0 2px;text-transform:uppercase}.sdMonth:after{content:"";flex:1;height:.5px;background:var(--hl)}
+.sdMonth.now{color:var(--ink)}.sdToday{display:flex;align-items:center;gap:10px;margin:10px 0 2px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sand)}.sdToday:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--sand)}.sdToday:after{content:"";flex:1;height:1px;background:var(--sand);opacity:.6}
 .sdRow{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:15px 0;border-bottom:.5px solid var(--hl);cursor:pointer}
 .sdDay b{display:block;font-weight:500;font-size:24px;letter-spacing:-.03em;line-height:1}.sdDay small{white-space:nowrap;font-size:10px;letter-spacing:.08em;color:var(--g)}
 .sdName{font-size:16px;letter-spacing:-.01em}.sdSub{font-size:12px;color:var(--g);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -108,7 +109,14 @@ function render(month){
   if(month==='__past')list=past.length?group(past,true):'<div class="sdNone">No past weddings yet.</div>';
   else if(month==='__await'){const w=up.filter(a=>!accepted(a.x));list=w.length?group(w,false):'<div class="sdNone">Every upcoming couple has confirmed.</div>'}
   else if(month){const inM=all_.filter(a=>a.d&&mk(a.d)===month).sort((a,b)=>a.d-b.d);list=inM.map(a=>rowHtml(a,a.d<T,next&&a.x.id===next.x.id)).join('')||'<div class="sdNone">No weddings this month.</div>'}
-  else list=(group(up,false)||'')+(tbd.length?'<div class="sdMonth">Date TBD</div>'+tbd.map(a=>rowHtml(a,false,false)).join(''):'')+(past.length?'<div class="sdMonth">Past weddings</div>'+past.map(a=>rowHtml(a,true,false)).join(''):'')||'<div class="sdNone">No timelines yet.</div>';
+  else{
+    const curM=mk(T),inCur=all_.filter(a=>a.d&&mk(a.d)===curM).sort((a,b)=>a.d-b.d);
+    const todayLine='<div class="sdToday"><span>Today · '+E(T.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}))+'</span></div>';
+    const curPast=inCur.filter(a=>a.d<T),curUp=inCur.filter(a=>a.d>=T);
+    const curHtml='<div class="sdMonth now">'+E(curM)+' · This month</div>'+curPast.map(a=>rowHtml(a,true,false)).join('')+todayLine+(curUp.length?curUp.map(a=>rowHtml(a,false,next&&a.x.id===next.x.id)).join(''):'<div class="sdNone" style="padding:14px 0">No more weddings this month.</div>');
+    list=curHtml+group(up.filter(a=>mk(a.d)!==curM),false)+(tbd.length?'<div class="sdMonth">Date TBD</div>'+tbd.map(a=>rowHtml(a,false,false)).join(''):'')+(past.filter(a=>mk(a.d)!==curM).length?'<div class="sdMonth">Past weddings</div>'+past.filter(a=>mk(a.d)!==curM).map(a=>rowHtml(a,true,false)).join(''):'');
+  }
+  if(false)list=(group(up,false)||'')+(tbd.length?'<div class="sdMonth">Date TBD</div>'+tbd.map(a=>rowHtml(a,false,false)).join(''):'')+(past.length?'<div class="sdMonth">Past weddings</div>'+past.map(a=>rowHtml(a,true,false)).join(''):'')||'<div class="sdNone">No timelines yet.</div>';
 
   const chip=(v,t)=>'<button class="sdChip'+(month===v?' on':'')+'" data-month="'+E(v)+'">'+E(t)+'</button>';
   app.innerHTML='<div class="sd"><input type="hidden" id="jrMonthFilter" value="'+E(month)+'"><div id="count" hidden></div>'+
@@ -116,7 +124,7 @@ function render(month){
    '<div class="sdTitle"><h1>Timeline<br>Builder</h1><div class="sdBy">BY JONHY &amp; ROSE</div></div>'+hero+
    '<div class="sdStats"><button data-month=""><b>'+up.length+'</b><small>Upcoming</small></button><button data-month=""><b>'+conf+'</b><small>Confirmed</small></button><button data-month="__await"><b>'+wait+'</b><small>Not confirmed</small></button></div>'+
    '<div class="sdLbl">Shortcuts</div><div><button class="sdSc" data-pdf="1"><span>New from questionnaire</span><em>PDF →</em></button><button class="sdSc" data-month="__await"><span>Not confirmed yet</span><em>'+wait+' →</em></button><button class="sdSc" data-alerts="1"><span>Light alerts</span><em class="'+(alerts?'bad':'')+'">'+(lightBusy&&!alerts?'…':alerts)+' →</em></button><a class="sdSc" href="https://the-studio-jr.vercel.app/finanzas"><span>Finanzas</span><em>→</em></a></div>'+
-   '<div class="sdChips">'+chip('','All')+upMonths.map(m=>chip(m,short(m))).join('')+(past.length?chip('__past','Past'):'')+'</div>'+
+   '<div class="sdChips">'+chip('','All')+chip(mk(T),short(mk(T))+' · Now')+upMonths.filter(m=>m!==mk(T)).map(m=>chip(m,short(m))).join('')+(past.length?chip('__past','Past'):'')+'</div>'+
    '<div id="dash">'+list+'</div></div>';
   loadLight(up.slice(0,10).map(a=>a.x));
 }
