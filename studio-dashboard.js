@@ -93,6 +93,7 @@ body:has(#app .editor){background:#fff}body:has(#app .editor) #jrHomeLink{displa
 #app .editor #rows .move button:hover{background:#f2f2f2!important}
 #app .editor [data-jr-prep]{display:none!important}
 @media(max-width:760px){#app .editor #rows .timelineRow{grid-template-columns:78px minmax(0,1fr)}#app .editor #rows .timelineRow>input{grid-row:1;font-size:15px!important;padding:9px 4px!important}#app .editor #rows .timelineRow>textarea.jrEventNotes{grid-column:2}#app .editor #rows .move{grid-column:1;grid-row:2;justify-content:flex-start;opacity:.45;margin-left:-4px}#app .editor #rows .move button{padding:6px 5px!important;font-size:13px}#app .editor .timelineRow>input:first-child{padding:9px 4px!important}}
+.sd .sdMark,#app .sdShell .sdMark,.sdMark{background:none!important;width:auto!important;height:auto!important;border-radius:0!important;display:flex!important;align-items:center;padding-right:12px;margin-right:2px;border-right:.5px solid #d9d9d9}.sdMark img{height:30px;width:auto;display:block}
 @media(min-width:900px){.sd{padding-top:30px}.sdTitle h1{font-size:56px}}
 `;
 const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
@@ -166,7 +167,7 @@ function render(month){
 
   const chip=(v,t)=>'<button class="sdChip'+(month===v?' on':'')+'" data-month="'+E(v)+'">'+E(t)+'</button>';
   app.innerHTML='<div class="sd"><input type="hidden" id="jrMonthFilter" value="'+E(month)+'"><div id="count" hidden></div>'+
-   '<div class="sdTop"><div class="sdBrand"><a class="sdMark" href="https://the-studio-jr.vercel.app/" aria-label="The Studio JR">JR</a><span class="sdName1">Timeline Builder</span></div><div class="sdNav"><a href="https://the-studio-jr.vercel.app/finanzas">Finanzas</a><button class="sdNew" data-new="1">+ New</button></div></div><div style="height:22px"></div>'+hero+
+   '<div class="sdTop"><div class="sdBrand"><a class="sdMark" href="https://the-studio-jr.vercel.app/" aria-label="The Studio JR"><img src="/jr-monogram-ink.png?v=1" alt="Jonhy &amp; Rose"></a><span class="sdName1">Timeline Builder</span></div><div class="sdNav"><a href="https://the-studio-jr.vercel.app/finanzas">Finanzas</a><button class="sdNew" data-new="1">+ New</button></div></div><div style="height:22px"></div>'+hero+
    '<div class="sdStats"><button data-month=""><b>'+up.length+'</b><small>Upcoming</small></button><button data-month=""><b>'+conf+'</b><small>Confirmed</small></button><button data-month="__await"><b>'+wait+'</b><small>Not confirmed</small></button></div>'+
    '<div class="sdLbl">Shortcuts</div><div><button class="sdSc" data-pdf="1"><span>New from questionnaire</span><em>PDF →</em></button><button class="sdSc" data-month="__await"><span>Not confirmed yet</span><em>'+wait+' →</em></button><button class="sdSc" data-alerts="1"><span>Light alerts</span><em class="'+(alerts?'bad':'')+'">'+(lightBusy&&!alerts?'…':alerts)+' →</em></button><a class="sdSc" href="https://the-studio-jr.vercel.app/finanzas"><span>Finanzas</span><em>→</em></a></div>'+
    '<div class="sdChips">'+chip('','All')+chip(mk(T),short(mk(T))+' · Now')+upMonths.filter(m=>m!==mk(T)).map(m=>chip(m,short(m))).join('')+(past.length?chip('__past','Past'):'')+'</div>'+
@@ -191,7 +192,7 @@ document.addEventListener('click',async e=>{
   if(t.dataset.open){if(e.target.closest('.sdMenu')&&t.classList.contains('sdRow'))return;openTimeline(t.dataset.open);window.scrollTo(0,0)}
 });
 
-window.chrome=function(inner){return '<div class="shell sdShell"><div class="top"><div class="sdBar"><div class="sdBrand"><a class="sdMark" href="https://the-studio-jr.vercel.app/" aria-label="The Studio JR">JR</a><a class="sdEdName" href="#" onclick="dashboard();return false">Timeline Builder</a></div></div>'+inner+'</div></div>'};
+window.chrome=function(inner){return '<div class="shell sdShell"><div class="top"><div class="sdBar"><div class="sdBrand"><a class="sdMark" href="https://the-studio-jr.vercel.app/" aria-label="The Studio JR"><img src="/jr-monogram-ink.png?v=1" alt="Jonhy &amp; Rose"></a><a class="sdEdName" href="#" onclick="dashboard();return false">Timeline Builder</a></div></div>'+inner+'</div></div>'};
 try{chrome=window.chrome}catch(e){}
 function grow(t){if(!t||t.tagName!=='TEXTAREA')return;t.rows=1;t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
 document.addEventListener('input',e=>{if(e.target.closest?.('#app .editor #rows'))grow(e.target)});
