@@ -78,6 +78,7 @@ body:has(#app .editor){background:#fff}body:has(#app .editor) #jrHomeLink{displa
 .jrX-sheet{font-family:-apple-system,BlinkMacSystemFont,"Inter",Arial,sans-serif!important;color:#111;border-radius:18px!important}.jrX-sheet h3{font-family:inherit!important;font-weight:500!important;letter-spacing:-.03em;font-size:26px!important}.jrX-sheet .eyebrow{color:#7a7a7a!important;font-weight:400!important}.jrX-sheet input:not([type=checkbox]),.jrX-sheet textarea{font:15px/1.5 -apple-system,Arial,sans-serif!important;border:.5px solid #e2e2e2!important;border-radius:10px!important}.jrX-sheet button,.jrX-sheet a.jrX-btn{font-family:inherit!important;letter-spacing:0!important;text-transform:none!important;font-size:14px!important;font-weight:400!important}
 #app .editor #jrLightPlanner{background:#fafafa!important;border:.5px solid #ececec!important;border-radius:14px!important;box-shadow:none!important;font-family:inherit!important}#app .editor #jrLightPlanner *{font-family:inherit!important}#app .editor #jrLightPlanner [style*="9a8068"]{color:#7a7a7a!important;font-weight:400!important}
 .jrX-sheet{background:#fff!important}
+@media(max-width:760px){#app .editor .timelineRow{grid-template-columns:108px 1fr}#app .editor .timelineRow>input:first-child{padding:11px 9px!important}}
 @media(min-width:900px){.sd{padding-top:30px}.sdTitle h1{font-size:56px}}
 `;
 const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
