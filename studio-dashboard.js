@@ -94,6 +94,12 @@ body:has(#app .editor){background:#fff}body:has(#app .editor) #jrHomeLink{displa
 #app .editor [data-jr-prep]{display:none!important}
 @media(max-width:760px){#app .editor #rows .timelineRow{grid-template-columns:78px minmax(0,1fr)}#app .editor #rows .timelineRow>input{grid-row:1;font-size:15px!important;padding:9px 4px!important}#app .editor #rows .timelineRow>textarea.jrEventNotes{grid-column:2}#app .editor #rows .move{grid-column:1;grid-row:2;justify-content:flex-start;opacity:.45;margin-left:-4px}#app .editor #rows .move button{padding:6px 5px!important;font-size:13px}#app .editor .timelineRow>input:first-child{padding:9px 4px!important}}
 .sd .sdMark,#app .sdShell .sdMark,.sdMark{background:none!important;width:auto!important;height:auto!important;border-radius:0!important;display:flex!important;align-items:center;padding-right:12px;margin-right:2px;border-right:.5px solid #d9d9d9}.sdMark img{height:30px;width:auto;display:block}
+#app .editor #rows{position:relative}
+#app .editor #rows .move button[title="Move up"],#app .editor #rows .move button[title="Move down"]{display:none!important}
+#app .editor #rows .sdGrip{cursor:grab;touch-action:none;font-size:17px!important;color:#9a9a9a!important;padding:6px 8px!important;user-select:none;-webkit-user-select:none}
+#app .editor #rows .timelineRow.sdDragging{position:relative;z-index:5;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.12);border-radius:12px;opacity:1;transition:none}
+#app .editor #rows .sdDropLine{position:absolute;left:0;right:0;height:2px;background:#111;border-radius:2px;pointer-events:none;z-index:4}
+body:has(.sdDragging){user-select:none;-webkit-user-select:none;cursor:grabbing}
 @media(min-width:900px){.sd{padding-top:30px}.sdTitle h1{font-size:56px}}
 `;
 const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
@@ -197,6 +203,34 @@ try{chrome=window.chrome}catch(e){}
 function grow(t){if(!t||t.tagName!=='TEXTAREA')return;t.rows=1;t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
 document.addEventListener('input',e=>{if(e.target.closest?.('#app .editor #rows'))grow(e.target)});
 let growPending=false;new MutationObserver(()=>{if(growPending)return;growPending=true;requestAnimationFrame(()=>{growPending=false;document.querySelectorAll('#app .editor #rows textarea').forEach(t=>{if(!t.dataset.sdg||t.dataset.sdg!==String(t.value.length)){t.dataset.sdg=t.value.length;grow(t)}})})}).observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
+
+/* drag to reorder timeline rows (whole row moves, same as the old arrows) */
+function addGrips(){document.querySelectorAll('#app .editor #rows .timelineRow').forEach((row,i)=>{const mv=row.querySelector('.move');if(!mv||mv.querySelector('.sdGrip'))return;const g=document.createElement('button');g.type='button';g.className='sdGrip';g.setAttribute('aria-label','Drag to reorder');g.title='Drag to reorder';g.textContent='⠿';mv.prepend(g)})}
+let drag=null;
+document.addEventListener('pointerdown',e=>{
+  const g=e.target.closest?.('#app .editor #rows .sdGrip');if(!g)return;e.preventDefault();
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  const row=g.closest('.timelineRow'),rows=[...document.querySelectorAll('#app .editor #rows .timelineRow')];
+  drag={row,from:rows.indexOf(row),to:rows.indexOf(row),y0:e.clientY,rows,line:document.createElement('div')};
+  drag.line.className='sdDropLine';row.parentElement.appendChild(drag.line);
+  row.classList.add('sdDragging');try{g.setPointerCapture(e.pointerId)}catch(_){}
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag)return;e.preventDefault();
+  drag.row.style.transform='translateY('+(e.clientY-drag.y0)+'px)';
+  let to=drag.rows.length;for(let k=0;k<drag.rows.length;k++){const r=drag.rows[k];if(r===drag.row)continue;const b=r.getBoundingClientRect();if(e.clientY<b.top+b.height/2){to=k;break}}
+  drag.to=to;const par=drag.row.parentElement.getBoundingClientRect(),ref=drag.rows[to];
+  const y=ref?ref.getBoundingClientRect().top:drag.rows[drag.rows.length-1].getBoundingClientRect().bottom;
+  drag.line.style.top=(y-par.top-1)+'px';
+  if(e.clientY<60)window.scrollBy(0,-12);else if(e.clientY>innerHeight-60)window.scrollBy(0,12);
+},{passive:false});
+function endDrag(){
+  if(!drag)return;const {from,row,line}=drag;let to=drag.to;drag=null;line.remove();row.classList.remove('sdDragging');row.style.transform='';
+  if(to>from)to--;if(to===from||typeof state==='undefined'||!state.timeline)return;
+  const [it]=state.timeline.splice(from,1);state.timeline.splice(to,0,it);renderEditor();
+}
+document.addEventListener('pointerup',endDrag);document.addEventListener('pointercancel',endDrag);
+new MutationObserver(()=>{if(document.querySelector('#app .editor #rows .timelineRow .move:not(:has(.sdGrip))'))addGrips()}).observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
 window.renderDashboardMonth=render;
 try{renderDashboardMonth=render}catch(e){}
 if(document.getElementById('dash')&&rows().length)render(cur());
