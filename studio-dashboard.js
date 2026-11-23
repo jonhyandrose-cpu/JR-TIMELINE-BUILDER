@@ -78,7 +78,21 @@ body:has(#app .editor){background:#fff}body:has(#app .editor) #jrHomeLink{displa
 .jrX-sheet{font-family:-apple-system,BlinkMacSystemFont,"Inter",Arial,sans-serif!important;color:#111;border-radius:18px!important}.jrX-sheet h3{font-family:inherit!important;font-weight:500!important;letter-spacing:-.03em;font-size:26px!important}.jrX-sheet .eyebrow{color:#7a7a7a!important;font-weight:400!important}.jrX-sheet input:not([type=checkbox]),.jrX-sheet textarea{font:15px/1.5 -apple-system,Arial,sans-serif!important;border:.5px solid #e2e2e2!important;border-radius:10px!important}.jrX-sheet button,.jrX-sheet a.jrX-btn{font-family:inherit!important;letter-spacing:0!important;text-transform:none!important;font-size:14px!important;font-weight:400!important}
 #app .editor #jrLightPlanner{background:#fafafa!important;border:.5px solid #ececec!important;border-radius:14px!important;box-shadow:none!important;font-family:inherit!important}#app .editor #jrLightPlanner *{font-family:inherit!important}#app .editor #jrLightPlanner [style*="9a8068"]{color:#7a7a7a!important;font-weight:400!important}
 .jrX-sheet{background:#fff!important}
-@media(max-width:760px){#app .editor .timelineRow{grid-template-columns:108px 1fr}#app .editor .timelineRow>input:first-child{padding:11px 9px!important}}
+
+#app .editor #rows .timelineRow{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:4px 10px;align-items:start;margin:0;padding:10px 0;border-bottom:.5px solid #f0f0f0}
+#app .editor #rows .timelineRow>input{grid-row:1/3;font-weight:500!important;border-color:transparent!important;padding:9px 8px!important;background:transparent!important}
+#app .editor #rows .timelineRow>textarea{grid-column:2;resize:none;overflow:hidden;min-height:0;border-color:transparent!important;background:transparent!important;padding:9px 10px!important;line-height:1.4!important}
+#app .editor #rows .timelineRow>textarea.jrEventNotes{font-size:14px!important;color:#6b6b6b!important;padding:2px 10px 8px!important}
+#app .editor #rows .timelineRow>textarea.jrEventNotes:placeholder-shown{font-size:13px!important}
+#app .editor #rows .timelineRow textarea::placeholder{color:#b5b5b5}
+#app .editor #rows .timelineRow>input:hover,#app .editor #rows .timelineRow>textarea:hover{background:#fafafa!important}
+#app .editor #rows .timelineRow>input:focus,#app .editor #rows .timelineRow>textarea:focus{background:#fff!important;border-color:#d6d6d6!important}
+#app .editor #rows .move{grid-column:3;grid-row:1;display:flex;gap:0;opacity:.35;transition:opacity .15s}
+#app .editor #rows .timelineRow:hover .move,#app .editor #rows .timelineRow:focus-within .move{opacity:1}
+#app .editor #rows .move button{border:0!important;background:transparent!important;padding:8px 7px!important;font-size:15px;color:#555;border-radius:8px}
+#app .editor #rows .move button:hover{background:#f2f2f2!important}
+#app .editor [data-jr-prep]{display:none!important}
+@media(max-width:760px){#app .editor #rows .timelineRow{grid-template-columns:78px minmax(0,1fr)}#app .editor #rows .timelineRow>input{grid-row:1;font-size:15px!important;padding:9px 4px!important}#app .editor #rows .timelineRow>textarea.jrEventNotes{grid-column:2}#app .editor #rows .move{grid-column:1;grid-row:2;justify-content:flex-start;opacity:.45;margin-left:-4px}#app .editor #rows .move button{padding:6px 5px!important;font-size:13px}#app .editor .timelineRow>input:first-child{padding:9px 4px!important}}
 @media(min-width:900px){.sd{padding-top:30px}.sdTitle h1{font-size:56px}}
 `;
 const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
@@ -179,6 +193,9 @@ document.addEventListener('click',async e=>{
 
 window.chrome=function(inner){return '<div class="shell sdShell"><div class="top"><div class="sdBar"><div class="sdBrand"><a class="sdMark" href="https://the-studio-jr.vercel.app/" aria-label="The Studio JR">JR</a><a class="sdEdName" href="#" onclick="dashboard();return false">Timeline Builder</a></div></div>'+inner+'</div></div>'};
 try{chrome=window.chrome}catch(e){}
+function grow(t){if(!t||t.tagName!=='TEXTAREA')return;t.rows=1;t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
+document.addEventListener('input',e=>{if(e.target.closest?.('#app .editor #rows'))grow(e.target)});
+let growPending=false;new MutationObserver(()=>{if(growPending)return;growPending=true;requestAnimationFrame(()=>{growPending=false;document.querySelectorAll('#app .editor #rows textarea').forEach(t=>{if(!t.dataset.sdg||t.dataset.sdg!==String(t.value.length)){t.dataset.sdg=t.value.length;grow(t)}})})}).observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
 window.renderDashboardMonth=render;
 try{renderDashboardMonth=render}catch(e){}
 if(document.getElementById('dash')&&rows().length)render(cur());

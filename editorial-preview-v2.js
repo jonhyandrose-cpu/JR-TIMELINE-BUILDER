@@ -5,38 +5,33 @@ const bride=['Room ready','Hair and makeup completed','All items together','Paja
 const groom=['Room ready','White shirt, pants and socks','All items gathered together','Getting ready moments','Tequila shots','Groom portraits'];
 function template(type){return type==='bride'?bride:groom}
 function inferType(input){
- const label=input.value.split(/\r?\n/)[0].replace(/^getting\s*ready\s*[-–—:]\s*/i,'').trim();
+ const label=input.value.split(/\r?\n/)[0].replace(/^getting\s*ready\s*[-–—:]?\s*/i,'').replace(/\s*(prep|getting ready)$/i,'').trim();
  if(/\b(bride|novia)\b/i.test(label))return 'bride';
  if(/\b(groom|novio)\b/i.test(label))return 'groom';
  const names=(document.getElementById('f_couple_name')?.value||'').split(/\s+(?:&|and|y|\+)\s+/i).map(s=>s.trim().split(/\s+/)[0]?.toLowerCase());
- if(names[0]&&label.toLowerCase()===names[0])return 'bride';
- if(names[1]&&label.toLowerCase()===names[1])return 'groom';
+ const first=label.toLowerCase().split(/\s+/)[0];if(names[0]&&first===names[0])return 'bride';
+ if(names[1]&&first===names[1])return 'groom';
  return null;
 }
-function expand(input,type){
- const text=input.value.trim(), title=text.split(/\r?\n/)[0];
- if(!/^getting\s*ready\b/i.test(title)||text.includes('\n'))return;
- input.value=title+'\n'+template(type).join('\n');
- input.dispatchEvent(new Event('change',{bubbles:true}));
+function fillNotes(title){
+ const row=title.closest('.timelineRow');const notes=row&&row.querySelector('.jrEventNotes');if(!notes||notes.value.trim())return false;
+ const t=title.value.split(/\r?\n/)[0].trim();if(!/getting\s*ready|\bprep\b|arreglo/i.test(t))return false;
+ const type=inferType(title);if(!type)return false;
+ notes.value=template(type).join('\n');notes.dispatchEvent(new Event('change'));notes.dispatchEvent(new Event('input',{bubbles:true}));return true;
 }
 document.addEventListener('change',function(e){
- const input=e.target;
- if(!input.matches?.('#rows .timelineRow textarea'))return;
- const type=inferType(input);if(type)expand(input,type);
+ if(!e.isTrusted)return;const input=e.target;
+ if(!input.matches?.('#rows .timelineRow > textarea:not(.jrEventNotes)'))return;
+ setTimeout(()=>fillNotes(input),0);
 });
-document.addEventListener('click',function(e){
- const btn=e.target.closest?.('[data-jr-prep]');if(!btn)return;
- const input=btn.closest('.timelineRow')?.querySelector('textarea');
- if(input)expand(input,btn.dataset.jrPrep);
+let fillTimer=null;
+document.addEventListener('input',function(e){
+ const input=e.target;if(!input.matches?.('#rows .timelineRow > textarea:not(.jrEventNotes)'))return;
+ clearTimeout(fillTimer);fillTimer=setTimeout(()=>fillNotes(input),700);
 });
 function decorate(){
  document.querySelectorAll('#rows .timelineRow').forEach(row=>{
-  if(row.querySelector('[data-jr-prep]'))return;
-  const controls=row.querySelector('.move');
-  if(!controls)return;
-  for(const [type,label] of [['bride','Bride prep'],['groom','Groom prep']]){
-   const b=document.createElement('button');b.type='button';b.dataset.jrPrep=type;b.textContent=label;b.title='Add standard '+type+' preparation details';controls.prepend(b);
-  }
+  const n=row.querySelector('.jrEventNotes');if(n&&!n.dataset.jrPh){n.dataset.jrPh='1';n.placeholder='+ Add details for the couple';n.rows=1}
  });
  document.querySelectorAll('.publicSection .publicRow .publicItem').forEach(item=>{
   if(item.dataset.jrFormatted)return;
