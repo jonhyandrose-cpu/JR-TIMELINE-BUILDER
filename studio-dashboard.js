@@ -7,12 +7,12 @@ const CSS=`
 body:has(#app .sd){background:#fff}body:has(#app .sd) #jrHomeLink{display:none!important}
 .sd *{box-sizing:border-box}.sd a{color:inherit;text-decoration:none}.sd .g{color:var(--g)}
 .sd button{font:inherit;cursor:pointer;background:none;border:0;padding:0;color:inherit;border-radius:0}
-.sdTop{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:.5px solid var(--hl)}
-.sdBrand{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--g)}
-.sdMark{width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:10px;letter-spacing:.05em;display:grid;place-items:center}
+.sdTop{display:flex;align-items:center;justify-content:space-between;padding:4px 0 14px;border-bottom:.5px solid var(--hl)}
+.sdBrand{display:flex;align-items:center;gap:10px}.sdName1,.sdEdName{font-size:17px;font-weight:500;letter-spacing:-.02em;color:#111}
+.sdMark{flex:0 0 auto;width:30px;height:30px;color:#fff!important;border-radius:50%;background:var(--ink);color:#fff;font-size:10px;letter-spacing:.05em;display:grid;place-items:center}
 .sdNav{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--g)}
 .sd .sdNew{background:var(--ink);color:#fff;border-radius:999px;padding:7px 13px;font-size:12px}
-.sdTitle{padding:34px 0 26px}.sdTitle h1{font:500 44px/1 inherit;font-family:inherit;letter-spacing:-.045em;margin:0}
+.sdTitle h1{font:500 44px/1 inherit;font-family:inherit;letter-spacing:-.045em;margin:0}
 .sdBy{font-size:12px;letter-spacing:.16em;color:var(--g);margin-top:12px}
 .sdHero{background:var(--ink);color:#f5f5f5;border-radius:18px;padding:22px 20px 20px}
 .sdHero .row{display:flex;justify-content:space-between;font-size:12px;color:#9a9a9a}
@@ -47,6 +47,37 @@ body:has(#app .sd){background:#fff}body:has(#app .sd) #jrHomeLink{display:none!i
 .sdMenu .pop>*{text-align:left;padding:11px 12px;border-radius:8px;font-size:14px}.sdMenu .pop>*:hover{background:#f5f5f5}.sdMenu .pop .del{color:#c62828}
 .sdNone{color:var(--g);font-size:14px;padding:30px 0}
 .sdToast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#111;color:#fff;font:13px -apple-system,Arial;padding:10px 16px;border-radius:999px;z-index:99}
+body:has(#app .editor){background:#fff}body:has(#app .editor) #jrHomeLink{display:none!important}
+#app .sdShell{max-width:820px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 20px 0;font-family:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",Arial,sans-serif}
+#app .sdShell .top{display:flex;flex-direction:column;align-items:stretch;gap:14px;padding-bottom:14px;border-bottom:.5px solid #ececec}
+#app .sdShell .sdBar{display:flex;align-items:center;justify-content:space-between}
+#app .sdShell .sdBar a{text-decoration:none;color:#111}#app .sdShell .sdBar .sdBack{font-size:13px;color:#7a7a7a}
+#app .sdShell .toolbar{display:flex;gap:6px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}#app .sdShell .toolbar::-webkit-scrollbar{display:none}
+#app .sdShell .toolbar button{flex:0 0 auto;font-size:13px;padding:8px 13px;border-radius:999px;border:.5px solid #e2e2e2;background:#fff;color:#111;letter-spacing:0;text-transform:none;font-weight:400}
+#app .sdShell .toolbar button.primary{background:#111;color:#fff;border-color:#111}
+#app .editor{max-width:820px;margin:0 auto;border:0;border-radius:0;box-shadow:none;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",Arial,sans-serif;color:#111;-webkit-font-smoothing:antialiased}
+#app .editor .editorTop{padding:16px 20px 0;border:0;align-items:center}
+#app .editor .editorTop .eyebrow{color:#7a7a7a;font-weight:400;letter-spacing:.14em;font-size:11px}#app .editor .editorTop .muted{font-size:13px;color:#9a9a9a;margin-top:3px}
+#app .editor .editorBody{padding:22px 20px 60px}
+#app .editor h1{font-family:inherit;font-weight:500;font-size:36px;line-height:1.05;letter-spacing:-.04em;margin:0 0 6px}
+#app .editor .editorBody>.muted{color:#7a7a7a;font-size:14px}
+#app .editor .sectionTitle{font-family:inherit;font-weight:400;font-size:12px;letter-spacing:.14em;color:#7a7a7a;border-bottom:.5px solid #ececec;margin:38px 0 16px;padding-bottom:10px}
+#app .editor .field label{font-weight:400;font-size:11px;letter-spacing:.1em;color:#7a7a7a}
+#app .editor input:not([type=checkbox]):not([type=file]),#app .editor textarea{font:16px/1.5 -apple-system,BlinkMacSystemFont,"Inter",Arial,sans-serif!important;color:#111;border:.5px solid #e2e2e2!important;border-radius:10px!important;background:#fff!important;padding:11px 13px;box-shadow:none!important}
+#app .editor input:focus,#app .editor textarea:focus{outline:none;border-color:#111!important}
+#app .editor button{font:14px -apple-system,BlinkMacSystemFont,"Inter",Arial,sans-serif;border:.5px solid #e2e2e2;background:#fff;color:#111;border-radius:999px;letter-spacing:0;text-transform:none}
+#app .editor button.primary{background:#111;color:#fff;border-color:#111}
+#app .editor .timelineRow{border-bottom:.5px solid #f2f2f2;padding-bottom:9px}
+#app .editor .move button{border-radius:8px;padding:7px 10px;color:#7a7a7a}
+#app .editor .importBox{background:#fafafa;border:.5px solid #ececec;border-radius:16px}
+#app .editor .importBox h3{font-family:inherit;font-weight:500;letter-spacing:-.02em;font-size:20px;margin:8px 0}
+#app .editor .eyebrow{color:#7a7a7a;font-weight:400;letter-spacing:.14em}
+#app .editor .status{color:#9a9a9a;letter-spacing:.06em}
+#app .editor #jrXCheck{font-family:inherit;border:.5px solid #ececec!important;border-radius:14px!important;background:#fafafa!important;color:#111;font-size:14px;line-height:1.55;padding:16px!important}
+#app .editor #jrXCheck.ok{border-left:3px solid #2fb36f!important;border-radius:0 14px 14px 0!important}#app .editor #jrXCheck.tight{border-left:3px solid #e0a63b!important;border-radius:0 14px 14px 0!important}#app .editor #jrXCheck.short{border-left:3px solid #e5484d!important;border-radius:0 14px 14px 0!important}
+.jrX-sheet{font-family:-apple-system,BlinkMacSystemFont,"Inter",Arial,sans-serif!important;color:#111;border-radius:18px!important}.jrX-sheet h3{font-family:inherit!important;font-weight:500!important;letter-spacing:-.03em;font-size:26px!important}.jrX-sheet .eyebrow{color:#7a7a7a!important;font-weight:400!important}.jrX-sheet input:not([type=checkbox]),.jrX-sheet textarea{font:15px/1.5 -apple-system,Arial,sans-serif!important;border:.5px solid #e2e2e2!important;border-radius:10px!important}.jrX-sheet button,.jrX-sheet a.jrX-btn{font-family:inherit!important;letter-spacing:0!important;text-transform:none!important;font-size:14px!important;font-weight:400!important}
+#app .editor #jrLightPlanner{background:#fafafa!important;border:.5px solid #ececec!important;border-radius:14px!important;box-shadow:none!important;font-family:inherit!important}#app .editor #jrLightPlanner *{font-family:inherit!important}#app .editor #jrLightPlanner [style*="9a8068"]{color:#7a7a7a!important;font-weight:400!important}
+.jrX-sheet{background:#fff!important}
 @media(min-width:900px){.sd{padding-top:30px}.sdTitle h1{font-size:56px}}
 `;
 const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
@@ -120,8 +151,7 @@ function render(month){
 
   const chip=(v,t)=>'<button class="sdChip'+(month===v?' on':'')+'" data-month="'+E(v)+'">'+E(t)+'</button>';
   app.innerHTML='<div class="sd"><input type="hidden" id="jrMonthFilter" value="'+E(month)+'"><div id="count" hidden></div>'+
-   '<div class="sdTop"><a class="sdBrand" href="https://the-studio-jr.vercel.app/"><span class="sdMark">JR</span>The Studio JR</a><div class="sdNav"><a href="https://the-studio-jr.vercel.app/finanzas">Finanzas</a><button class="sdNew" data-new="1">+ New</button></div></div>'+
-   '<div class="sdTitle"><h1>Timeline<br>Builder</h1><div class="sdBy">BY JONHY &amp; ROSE</div></div>'+hero+
+   '<div class="sdTop"><div class="sdBrand"><a class="sdMark" href="https://the-studio-jr.vercel.app/" aria-label="The Studio JR">JR</a><span class="sdName1">Timeline Builder</span></div><div class="sdNav"><a href="https://the-studio-jr.vercel.app/finanzas">Finanzas</a><button class="sdNew" data-new="1">+ New</button></div></div><div style="height:22px"></div>'+hero+
    '<div class="sdStats"><button data-month=""><b>'+up.length+'</b><small>Upcoming</small></button><button data-month=""><b>'+conf+'</b><small>Confirmed</small></button><button data-month="__await"><b>'+wait+'</b><small>Not confirmed</small></button></div>'+
    '<div class="sdLbl">Shortcuts</div><div><button class="sdSc" data-pdf="1"><span>New from questionnaire</span><em>PDF →</em></button><button class="sdSc" data-month="__await"><span>Not confirmed yet</span><em>'+wait+' →</em></button><button class="sdSc" data-alerts="1"><span>Light alerts</span><em class="'+(alerts?'bad':'')+'">'+(lightBusy&&!alerts?'…':alerts)+' →</em></button><a class="sdSc" href="https://the-studio-jr.vercel.app/finanzas"><span>Finanzas</span><em>→</em></a></div>'+
    '<div class="sdChips">'+chip('','All')+chip(mk(T),short(mk(T))+' · Now')+upMonths.filter(m=>m!==mk(T)).map(m=>chip(m,short(m))).join('')+(past.length?chip('__past','Past'):'')+'</div>'+
@@ -146,6 +176,8 @@ document.addEventListener('click',async e=>{
   if(t.dataset.open){if(e.target.closest('.sdMenu')&&t.classList.contains('sdRow'))return;openTimeline(t.dataset.open);window.scrollTo(0,0)}
 });
 
+window.chrome=function(inner){return '<div class="shell sdShell"><div class="top"><div class="sdBar"><div class="sdBrand"><a class="sdMark" href="https://the-studio-jr.vercel.app/" aria-label="The Studio JR">JR</a><a class="sdEdName" href="#" onclick="dashboard();return false">Timeline Builder</a></div></div>'+inner+'</div></div>'};
+try{chrome=window.chrome}catch(e){}
 window.renderDashboardMonth=render;
 try{renderDashboardMonth=render}catch(e){}
 if(document.getElementById('dash')&&rows().length)render(cur());
