@@ -45,8 +45,11 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
 .sign p{margin:0;color:var(--muted)}
 .sign .name{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:30px;color:var(--ink);margin-top:6px}
 .sign small{display:block;margin-top:10px;font-size:11px;letter-spacing:.22em;color:var(--taupe)}
+.share{display:inline-flex;align-items:center;gap:8px;margin-top:26px;padding:12px 20px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:#f6f3ee;font:500 14px 'DM Sans',sans-serif;cursor:pointer}
+.share.light{background:#fff;color:var(--ink)}
+.shareNote{display:block;font-size:12px;color:var(--muted);margin-top:8px;min-height:16px}
 @media(max-width:620px){.cols{grid-template-columns:1fr;gap:0}}
-@media print{body{background:#fff}.toc,.top a{display:none}}
+@media print{body{background:#fff}.toc,.top a,.share,.shareNote{display:none}}
 </style>
 </head>
 <body>
@@ -57,6 +60,7 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
     <div class="eyebrow">Jonhy &amp; Rose Photography Studio</div>
     <h1>Your Wedding Day <em>Guide</em></h1>
     <p>A few simple things to have ready, so the morning feels calm, nothing gets forgotten, and you can simply enjoy every moment while we take care of the rest.</p>
+    <button class="share" type="button" data-share>Share with your bridal party</button><span class="shareNote"></span>
     <nav class="toc"><a href="#rooms">The rooms</a><a href="#bride">For the bride</a><a href="#groom">For the groom</a><a href="#details">The details</a><a href="#toast">A toast</a><a href="#surprises">Surprises</a><a href="#before">The day before</a></nav>
   </div>
 
@@ -79,6 +83,7 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
     <p>When we arrive, have your hair and makeup done and wear a robe or pajama set. Everything else stays aside so we can photograph each piece before you put it on.</p>
     <ul class="check">
       <li>Makeup and hair finished, robe or pajama on.</li>
+      <li>Your bridesmaids ready too: hair and makeup done, in their robes or pajamas.</li>
       <li>Your dress ready on a wooden or special bridal hanger.</li>
       <li>All accessories gathered in one place (see <a href="#details" style="color:inherit">the details</a>).</li>
     </ul>
@@ -92,6 +97,7 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
       <li>Pants, white shirt and hair ready.</li>
       <li>Jacket, tie and accessories kept aside in your room.</li>
     </ul>
+    <div class="card"><h3 style="margin-top:0">Your groomsmen</h3><p>When we arrive, your groomsmen should be 100% dressed and ready, so the focus can be on you and those final touches.</p></div>
   </section>
 
   <section id="details">
@@ -140,7 +146,16 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
     <p>For us, the most important thing is that you enjoy your wedding.<br>We’ll take care of the rest.</p>
     <div class="name">Looking forward to your day,</div>
     <small>JONHY &amp; ROSE</small>
+    <button class="share light" type="button" data-share>Share this guide</button><span class="shareNote"></span>
   </div>
 </div>
+<script>
+document.querySelectorAll('[data-share]').forEach(b=>b.addEventListener('click',async()=>{
+  const url=location.origin+'/guide',note=b.nextElementSibling;
+  const data={title:'Wedding Day Guide · Jonhy & Rose',text:'A few things to have ready for the wedding morning:',url};
+  try{if(navigator.share){await navigator.share(data);return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(url);note.textContent='Link copied. Paste it in your group chat.'}catch(e){note.textContent=url}
+}));
+</script>
 </body>
 </html>
