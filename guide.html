@@ -16,9 +16,11 @@
 :root{--ink:#191816;--paper:#f6f3ee;--line:#e3ddd3;--taupe:#9a8068;--muted:#6f6a63}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',-apple-system,Arial,sans-serif;font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
-.wrap{max-width:720px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top)) 22px 80px}
-.top{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid var(--line)}
-.top img{height:34px;display:block}.top a{color:var(--muted);font-size:13px;text-decoration:none}
+.wrap{max-width:720px;margin:0 auto;padding:0 22px 80px}
+section{scroll-margin-top:80px}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 -22px;padding:calc(10px + env(safe-area-inset-top)) 22px 12px;background:rgba(246,243,238,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top nav{display:flex;gap:6px}.top nav a{font-size:13px;color:var(--ink);text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff}.top nav a.on{background:var(--ink);color:#f6f3ee;border-color:var(--ink)}
+.top img{height:30px;display:block}
 .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe)}
 .hero{padding:56px 0 34px;text-align:center}
 .hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(44px,11vw,72px);line-height:1;letter-spacing:-.01em;margin:16px 0 18px}
@@ -49,19 +51,19 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
 .share.light{background:#fff;color:var(--ink)}
 .shareNote{display:block;font-size:12px;color:var(--muted);margin-top:8px;min-height:16px}
 @media(max-width:620px){.cols{grid-template-columns:1fr;gap:0}}
-@media print{body{background:#fff}.toc,.top a,.share,.shareNote{display:none}}
+@media print{body{background:#fff}.toc,.top nav,.share,.shareNote{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="top"><img src="/jr-monogram-ink.png?v=1" alt="Jonhy &amp; Rose"><a href="javascript:history.length>1?history.back():location.assign('/')">← Back</a></header>
+  <header class="top"><a href="#" id="jrHome" aria-label="Top"><img src="/jr-monogram-ink.png?v=1" alt="Jonhy &amp; Rose"></a><nav id="jrNav"><a class="on" href="#">Guide</a></nav></header>
 
   <div class="hero">
     <div class="eyebrow">Jonhy &amp; Rose Photography Studio</div>
     <h1>Your Wedding Day <em>Guide</em></h1>
     <p>A few simple things to have ready, so the morning feels calm, nothing gets forgotten, and you can simply enjoy every moment while we take care of the rest.</p>
     <button class="share" type="button" data-share>Share with your bridal party</button><span class="shareNote"></span>
-    <nav class="toc"><a href="#rooms">The rooms</a><a href="#bride">For the bride</a><a href="#groom">For the groom</a><a href="#details">The details</a><a href="#toast">A toast</a><a href="#surprises">Surprises</a><a href="#before">The day before</a></nav>
+    <nav class="toc"><a href="#rooms">The rooms</a><a href="#bride">For the bride</a><a href="#groom">For the groom</a><a href="#details">The details</a><a href="#firstlook">First look</a><a href="#party">Bridal party</a><a href="#toast">A toast</a><a href="#family">Family</a><a href="#surprises">Surprises</a><a href="#before">The day before</a></nav>
   </div>
 
   <section id="rooms">
@@ -112,22 +114,65 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
     </div>
   </section>
 
-  <section id="toast">
+
+  <section id="firstlook">
     <div class="num">v.</div>
+    <h2>The first look</h2>
+    <p class="lead">One of the most intimate moments of the day: the first time you see each other, just the two of you.</p>
+    <p>We recommend keeping it private. If the bride would like a hand with the dress or the bouquet, only the maid of honor joins, and then gives you your space.</p>
+    <ul class="check">
+      <li>Just the two of you (and the maid of honor, only if needed).</li>
+      <li>Phones away from the spot, so it stays yours.</li>
+      <li>We stay with you 20–30 minutes right after for couple portraits.</li>
+    </ul>
+    <div class="card"><h3 style="margin-top:0">Why portraits before the ceremony</h3><p>After the ceremony everything moves faster: cocktail hour, family, sunset, the reception. Taking your portraits right after the first look gives you a relaxed, unhurried moment together, and many more images of the two of you.</p></div>
+  </section>
+
+  <section id="party">
+    <div class="num">vi.</div>
+    <h2>Your bridal party</h2>
+    <p>We almost always recommend these photos right after the first look, while everyone is fresh and ready. In about 20 minutes we create:</p>
+    <ul class="check">
+      <li>Group photos with the full bridal party.</li>
+      <li>The bride with her bridesmaids.</li>
+      <li>The groom with his groomsmen.</li>
+    </ul>
+    <p class="note">This moment flows beautifully when everyone is dressed, nearby and ready when we call them. A little coordination from all makes it quick, fun and stress free.</p>
+  </section>
+
+  <section id="toast">
+    <div class="num">vii.</div>
     <h2>A toast before the ceremony</h2>
     <p>Some of our favorite moments happen right here. If you would like a fun, joyful moment before the ceremony, have a bottle of champagne (or beers, shots, your special drink) and enough glasses for everyone, and share a toast with your bridesmaids, groomsmen and family.</p>
     <p class="quote">“The best photos come from real moments, so give yourselves a few to simply celebrate.”</p>
   </section>
 
+
+  <section id="family">
+    <div class="num">viii.</div>
+    <h2>Family portraits</h2>
+    <p class="lead">These portraits can happen before or after the ceremony. Organized, they take just a few minutes. Without a plan, they can feel long, and nobody wants to stand in the sun waiting.</p>
+    <div class="cols">
+      <div><h3>Your family helper</h3><p>Choose one person who knows both families well. They help us recognize everyone, gather each group and have the next one ready to step in.</p></div>
+      <div><h3>Your shot list</h3><p>Send us your list of family groups before the wedding, so we follow your order and nobody is missed.</p></div>
+    </div>
+    <ul class="check">
+      <li>Family stays close to the ceremony spot right after it ends.</li>
+      <li>As soon as one group is done, the helper calls the next one in.</li>
+      <li>Your helper builds each set with us, so every group is ready in seconds.</li>
+    </ul>
+    <p class="quote">“In our experience, with a helper and a list, this part is effortless, and you get back to celebrating.”</p>
+  </section>
+
   <section id="surprises">
-    <div class="num">vi.</div>
+    <div class="num">ix.</div>
     <h2>Surprises &amp; special moments</h2>
     <p>Planning a letter, a gift, a first look with your dad, a special dance or any surprise? Tell us in advance, even in a private email if it is a secret, so we are in the right place at the right moment.</p>
     <p class="note">Anything we don’t know about ahead of time is much harder to capture well.</p>
   </section>
 
   <section id="before">
-    <div class="num">vii.</div>
+    <div class="num">x.</div>
     <h2>The day before</h2>
     <p>We will check in with you the day before the wedding. Having these answers ready makes our arrival smooth:</p>
     <ul class="check">
@@ -150,8 +195,16 @@ ul.check li:before{content:"";position:absolute;left:2px;top:17px;width:12px;hei
   </div>
 </div>
 <script>
+(function(){const q=new URLSearchParams(location.search),p=q.get('p'),sh=q.get('s')==='1';
+  const nav=document.getElementById('jrNav');
+  if(p){const base='/?timeline='+encodeURIComponent(p)+(sh?'&s=1':'');
+    nav.innerHTML='<a href="'+base+'">Portal</a><a href="'+base+'#timeline">Timeline</a><a class="on" href="#">Guide</a>';}
+  document.getElementById('jrHome').addEventListener('click',e=>{e.preventDefault();scrollTo({top:0,behavior:'smooth'})});
+  nav.querySelector('a.on').addEventListener('click',e=>{e.preventDefault();scrollTo({top:0,behavior:'smooth'})});
+  window.__guideUrl=location.origin+'/guide'+(p?'?p='+encodeURIComponent(p)+'&s=1':'');
+})();
 document.querySelectorAll('[data-share]').forEach(b=>b.addEventListener('click',async()=>{
-  const url=location.origin+'/guide',note=b.nextElementSibling;
+  const url=window.__guideUrl,note=b.nextElementSibling;
   const data={title:'Wedding Day Guide · Jonhy & Rose',text:'A few things to have ready for the wedding morning:',url};
   try{if(navigator.share){await navigator.share(data);return}}catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(url);note.textContent='Link copied. Paste it in your group chat.'}catch(e){note.textContent=url}
