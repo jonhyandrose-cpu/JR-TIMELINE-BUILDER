@@ -112,6 +112,8 @@ h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:34px
     <div class="pk sel" data-p="signature"><span class="tag">Most chosen</span><div class="row"><h3>Signature</h3><span class="pr">$320</span></div><div class="d">40 minutes</div><ul><li>60–80 digital images</li><li>Gallery within 5 days</li><li>6 months of storage</li></ul></div>
     <div class="pk" data-p="experience"><div class="row"><h3>Experience</h3><span class="pr">$450</span></div><div class="d">60 minutes</div><ul><li>About 100 digital images</li><li>10 drone photos included</li><li>Express gallery within 48 hours</li><li>6 months of storage</li></ul></div>
     <label class="addon" id="droneBox"><span><b style="font-weight:500">Add drone photos</b><br><span style="color:var(--muted)">5–10 aerial photos · +$40</span></span><input type="checkbox" id="drone"></label>
+    <div class="addon" style="cursor:default"><span><b style="font-weight:500">Extra time</b><br><span style="color:var(--muted)">+$100 per additional hour</span></span><span style="display:flex;align-items:center;gap:10px"><button type="button" class="btn light" style="padding:6px 13px" onclick="hrs(-1)">−</button><b id="hrsv" style="font-weight:500;min-width:34px;text-align:center">0 h</b><button type="button" class="btn light" style="padding:6px 13px" onclick="hrs(1)">+</button></span></div>
+    <p style="font-size:13px;color:var(--muted);margin:12px 2px 0">Need something different? Send us a message and we'll build a custom session for you.</p>
     <div class="nav"><button class="btn" onclick="go(2)">Continue</button></div>
   </section>
 
@@ -177,7 +179,8 @@ h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:34px
 </main>
 <script>
 const P={essential:{n:'Essential',d:20,p:220},signature:{n:'Signature',d:40,p:320},experience:{n:'Experience',d:60,p:450}};
-const S={p:'signature',drone:false,date:null,slot:null,disc:0,code:''};
+const S={p:'signature',drone:false,hours:0,date:null,slot:null,disc:0,code:''};
+function hrs(n){S.hours=Math.max(0,Math.min(3,S.hours+n));document.getElementById('hrsv').textContent=S.hours+' h';if(S.date)slots()}
 const RPC='https://eiivhnfalyhoyujwpzzq.supabase.co/rest/v1/rpc/',KEY='sb_publishable_Wr4xUrtN3XRhozHW-pwGPA_y3XlNECV',PAYLINK='https://buy.stripe.com/14AeVcaB04Ip5vR4JU1Fe22';
 const rpc=(fn,body)=>fetch(RPC+fn,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(async r=>{const j=await r.json().catch(()=>null);if(!r.ok)throw new Error((j&&j.message)||'Error');return j});
 const $=id=>document.getElementById(id);
@@ -197,11 +200,11 @@ function slots(){const d=S.date,ss=sun(d,false),gs=ss-75;
  $('tm').onchange=()=>{const m=+$('tm').value,inGH=m>=gs-15&&m<ss;$('gh').innerHTML=inGH?'<span style="display:inline-block;background:#fbefdc;color:#8a5a12;border-radius:999px;padding:4px 10px;font-size:12px">✨ Golden hour</span> <span style="color:var(--muted)">Beautiful choice: sunset that day is '+hmx(ss)+'.</span>':'';S.slot={t:hmx(m),l:inGH?'Golden hour':''};$('n2').disabled=false}}
 function okDetails(){const e=$('em').value.trim();if(!$('nm').value.trim()||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert('Please add your name and a valid email.');return false}return true}
 async function applyCoupon(){const c=$('cpn').value.trim();if(!c){S.disc=0;S.code='';fill();return}$('cpmsg').textContent='Checking…';try{const v=await rpc('check_coupon',{p_code:c});if(v){S.disc=+v;S.code=c.toUpperCase();$('cpmsg').innerHTML='<span style="color:#2f6b3f">Code applied: -$'+S.disc+'</span>'}else{S.disc=0;S.code='';$('cpmsg').textContent='That code is not valid.'}}catch(e){$('cpmsg').textContent='We could not check the code right now.'}fill()}
-function fill(){const p=P[S.p],tot=Math.max(p.p+(S.drone?40:0)-S.disc,50);$('sDiscRow').style.display=S.disc?'flex':'none';$('sDisc').textContent='-$'+S.disc+' ('+S.code+')';$('sP').textContent=p.n+' · '+p.d+' min'+(S.drone?' + drone':'');$('sD').textContent=fmtD(S.date);$('sT').textContent=S.slot.t+(S.slot.l?' · '+S.slot.l:'');$('sH').textContent=$('ht').value;$('sTot').textContent='$'+tot;$('sBal').textContent='$'+(tot-50)}
+function fill(){const p=P[S.p],tot=Math.max(p.p+(S.drone?40:0)+S.hours*100-S.disc,50);$('sDiscRow').style.display=S.disc?'flex':'none';$('sDisc').textContent='-$'+S.disc+' ('+S.code+')';$('sP').textContent=p.n+' · '+p.d+' min'+(S.hours?' + '+S.hours+' h extra':'')+(S.drone?' + drone':'');$('sD').textContent=fmtD(S.date);$('sT').textContent=S.slot.t+(S.slot.l?' · '+S.slot.l:'');$('sH').textContent=$('ht').value;$('sTot').textContent='$'+tot;$('sBal').textContent='$'+(tot-50)}
 $('tc').onchange=e=>$('payb').disabled=!e.target.checked;
 async function pay(){$('st').style.display='block';$('payb').disabled=true;
  const m=S.date,iso=m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(m.getDate()).padStart(2,'0');
- try{const r=await rpc('create_session_booking',{p:{package:S.p,drone:S.drone,coupon:S.code,date:iso,time:S.slot.t,golden:S.slot.l==='Golden hour',name:$('nm').value,email:$('em').value,phone:$('ph').value,hotel:$('ht').value,people:$('pp').value,occasion:$('oc').value,notes:$('nt').value}});
+ try{const r=await rpc('create_session_booking',{p:{package:S.p,drone:S.drone,extra_hours:S.hours,coupon:S.code,date:iso,time:S.slot.t,golden:S.slot.l==='Golden hour',name:$('nm').value,email:$('em').value,phone:$('ph').value,hotel:$('ht').value,people:$('pp').value,occasion:$('oc').value,notes:$('nt').value}});
   try{localStorage.setItem('jrBooking',JSON.stringify({ref:r.ref,date:fmtD(S.date),time:S.slot.t,hotel:$('ht').value,email:$('em').value}))}catch(e){}
   location.href=PAYLINK+'?client_reference_id='+encodeURIComponent(r.ref)+'&prefilled_email='+encodeURIComponent($('em').value.trim());
  }catch(e){$('st').style.display='none';$('payb').disabled=false;alert('Something went wrong, please try again or message us on Instagram.')}}
