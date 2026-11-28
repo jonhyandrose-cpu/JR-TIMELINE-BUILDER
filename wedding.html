@@ -176,7 +176,7 @@ async function renderAgreement(b){
   let blocks=[];try{blocks=await fetch('/contract-wedding-en.json?v=1').then(r=>r.json())}catch(e){}
   const ed=Array.isArray(b.contract_edits)?b.contract_edits:[];const byId={};ed.forEach(e=>{if(e.block_id)(byId[e.block_id]=byId[e.block_id]||[]).push(e)});
   let html='',inList=false;const out=(t,x,upd)=>{const cls=upd?' class="upd"':'';if(t==='li'){if(!inList){html+='<ul>';inList=true}html+='<li'+cls+'>'+esc(x)+'</li>';return}if(inList){html+='</ul>';inList=false}const tag={h3:'h3',h4:'h4',h5:'h5'}[t]||'p';const m=t==='p'&&/^([IVX]+\.[a-f]\))\s(.*)$/.exec(x);html+='<'+tag+cls+'>'+(m?'<b>'+m[1]+'</b> '+esc(m[2]):esc(x))+'</'+tag+'>'};
-  blocks.forEach(k=>{const es=byId[k.id]||[];const e=es.find(z=>z.action==='edit'||z.action==='delete');if(e&&e.action==='delete'){}else out(k.t,e?e.text:k.x,!!e);es.filter(z=>z.action==='add').forEach(z=>out(z.t||'p',z.text,true))});
+  blocks.forEach(k=>{const es=byId[k.id]||[];const e=es.find(z=>z.action==='edit'||z.action==='delete');if(e&&e.action==='delete'){}else{const lb=/^([IVX]+\.[a-f]\))\s+/.exec(k.x);out(k.t,e?((lb&&!/^[IVX]+\.[a-f]\)/.test(e.text)?lb[0]:'')+e.text):k.x,!!e)}es.filter(z=>z.action==='add').forEach(z=>out(z.t||'p',z.text,true))});
   if(inList)html+='</ul>';
   $('agBody').innerHTML=html;
 }
